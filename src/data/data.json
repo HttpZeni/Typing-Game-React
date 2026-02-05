@@ -1,0 +1,26 @@
+[
+    {
+        "Game": {
+            "Seconds": 0,
+            "Minutes": 0,
+            "Accurancy": 0,
+            "Character": 0,
+            "CorrectCharacter": 0,
+            "WPM": 0,
+            "Errors": 0,
+            "LineGraphDataSet": [
+
+            ]
+        },
+        "GameSettings": {
+            "CurrentText": "",
+            "CurrentTitle": "",
+            "Timer": -1
+        },
+        "Settings": {
+            "Text": {
+                "Length": "short"
+            }
+        }
+    }
+]

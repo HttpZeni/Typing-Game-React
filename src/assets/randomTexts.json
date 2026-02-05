@@ -1,0 +1,54 @@
+﻿{
+  "texts": [
+    {
+      "id": "t01",
+      "topic": "Space",
+      "text": "A small probe orbits a distant planet, measuring dust, light, and temperature. The data helps explain the climate and the makeup of its atmosphere."
+    },
+    {
+      "id": "t02",
+      "topic": "Cooking",
+      "text": "When cooking pasta, salt the water well and prepare the sauce first. Everything blends evenly and stays moist."
+    },
+    {
+      "id": "t03",
+      "topic": "Music",
+      "text": "A simple drum groove can hold a whole band together. When bass and kick lock in, the foundation feels instantly clear."
+    },
+    {
+      "id": "t04",
+      "topic": "Weather",
+      "text": "After a warm day, a cool breeze arrives and the clouds grow thicker. Later, a light rain leaves the streets briefly glossy."
+    },
+    {
+      "id": "t05",
+      "topic": "Technology",
+      "text": "Modern smartphone sensors can detect steps, light, and motion. These signals enable apps that adapt to their surroundings."
+    },
+    {
+      "id": "t06",
+      "topic": "Travel",
+      "text": "A train journey through mountains often feels calmer than a flight. You pass villages, rivers, and fields that glide by at eye level."
+    },
+    {
+      "id": "t07",
+      "topic": "Sports",
+      "text": "In climbing, clean footwork matters more than strength. Calm breathing and planning each move saves energy for the next sequence."
+    },
+    {
+      "id": "t08",
+      "topic": "History",
+      "text": "Old trading cities bring many languages and traditions together. Markets, houses, and streets show how exchange shapes a place."
+    },
+    {
+      "id": "t09",
+      "topic": "Nature",
+      "text": "A dense forest sounds different at dawn than in the evening. Bird calls, rustling leaves, and distant steps create a quiet, living backdrop."
+    },
+    {
+      "id": "t10",
+      "topic": "City Life",
+      "text": "In a city, loud crossings alternate with quiet courtyards. Walking slowly reveals small cafes, murals, and green corners."
+    }
+  ]
+}

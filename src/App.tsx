@@ -1,0 +1,72 @@
+import { useEffect, useState } from "react";
+import { Results, TextArea, Toolbar, Title} from "./components";
+
+import {
+  AccurancyPercentageCalculator,
+  CalculateWPM,
+  FetchGameData,
+  UpdateText,
+  type Game,
+} from "./tools";
+
+function App() {
+  const [isGameStarted, setIsGameStarted] = useState<boolean>(false);
+  const [showResults, setShowResults] = useState<boolean>(false);
+  const [game, setGame] = useState<Game>(() => FetchGameData(0));
+  const [textVersion, setTextVersion] = useState<number>(0);
+
+  const [textHover, setTextHover] = useState<boolean>(false);
+
+  useEffect(() => {
+    UpdateText();
+    setTextVersion(v => v + 1);
+  }, []);
+
+  useEffect(() => {
+    setGame((prev) => {
+      const Minutes = prev.Seconds / 60;
+      const WPM = CalculateWPM(prev.Character, Minutes);
+      const Errors = prev.Character - prev.CorrectCharacter;
+      const Accurancy = AccurancyPercentageCalculator(prev.CorrectCharacter, prev.Character);
+
+      if (
+        Minutes === prev.Minutes &&
+        WPM === prev.WPM &&
+        Errors === prev.Errors &&
+        Accurancy === prev.Accurancy
+      ) {
+        return prev;
+      }
+
+      return { ...prev, Minutes, WPM, Errors, Accurancy };
+    });
+  }, [game.Seconds, game.Character, game.CorrectCharacter]);
+
+  return (
+    <>
+      <div className="w-screen h-screen bg-game-bg">
+        <div className="w-full h-full flex items-center justify-center">
+          {showResults ? 
+            <Results setShowResults={setShowResults} game={game} />
+            :
+            <div className="w-full h-full flex flex-col gap-3 justify-center items-center">
+              <Toolbar onTextUpdate={() => setTextVersion((v) => v + 1)} />
+              <TextArea
+                startGame={isGameStarted}
+                setStartGame={setIsGameStarted}
+                setShowResults={setShowResults}
+                setGame={setGame}
+                textVersion={textVersion}
+              />
+              <div className={`w-[65%] flex flex-row items-center justify-start`} onMouseEnter={() => setTextHover(true)} onMouseLeave={() => setTextHover(false)} >
+                <Title glow={textHover ? true : false}/>
+              </div>
+            </div> 
+          }
+        </div>
+      </div>
+    </>
+  )
+}
+
+export default App
