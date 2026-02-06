@@ -48,7 +48,6 @@ function notifySubscribers(subscribers: Set<DataChangeSubscriber>, kind: string)
         try {
             subscriber();
         } catch (err) {
-            // Keep notifying other subscribers even if one throws.
             console.error(`${kind} subscriber threw:`, err);
         }
     }

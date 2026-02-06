@@ -1,8 +1,9 @@
 import { useState, type ReactElement } from "react";
 import Button from "./Button";
 import ButtonSelection from "./ButtonSelection";
+import type DropDown from "./DropDown";
 
-type optionValues = ReactElement<typeof Button> | ReactElement<typeof ButtonSelection>;
+type optionValues = ReactElement<typeof Button> | ReactElement<typeof ButtonSelection> | ReactElement<typeof DropDown>;
 
 interface props{
     text?: string,

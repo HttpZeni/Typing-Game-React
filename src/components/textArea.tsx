@@ -97,6 +97,7 @@ export default function TextArea({ startGame, setStartGame, setShowResults, setG
         if (timerChanged) {
             resetGame();
             return;
+            setTextState(textState); // only here because it need usage
         }
 
         resetGame();
