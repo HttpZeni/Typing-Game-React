@@ -24,7 +24,12 @@ export function Results({ game }: props) {
                 </div>
                 
                 <div className="flex-1 p-10">
-                    <Graph lineData={game.LineGraphDataSet} />
+                    <Graph
+                        data={game.LineGraphDataSet.map((p) => ({ x: p.Seconds, y: p.WPM }))}
+                        lineLabel="WPM"
+                        xTitle="TIME (SECONDS)"
+                        yTitle="WORDS PER MINUTE"
+                    />
                 </div>
             </div>
         </>

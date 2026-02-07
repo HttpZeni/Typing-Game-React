@@ -276,7 +276,7 @@ export default function TextArea({ startGame, setStartGame, setShowResults, setG
     const showCountdown = gameSettingsRef.current.Timer > 0;
 
     return (
-        <div className="relative w-2/3 h-2/5">
+        <div className="relative w-full h-2/5">
             {showCountdown && (
                 <div className="absolute top-3 right-3 z-10 rounded-md border border-card-border bg-game-bg-light px-3 py-1 text-sm font-semibold text-text-primary shadow-card pointer-events-none">
                     {timer}

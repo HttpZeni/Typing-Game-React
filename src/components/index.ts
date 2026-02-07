@@ -1,4 +1,6 @@
+import Profile from "./profile";
 import Title from "./Title";
+import Window from "./window";
 
 export { default as Button } from "./Button";
 export { default as ButtonSelection } from "./ButtonSelection";
@@ -9,3 +11,5 @@ export { StaticResultText } from "./staticResultText";
 export { default as TextArea } from "./textArea";
 export { default as Toolbar } from "./toolbar";
 export { Title };
+export { Profile };
+export { Window };

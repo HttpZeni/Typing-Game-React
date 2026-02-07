@@ -38,7 +38,7 @@ export default function Toolbar({ onTextUpdate }: Props){
 
     return(
         <>
-            <div className="w-2/3 h-14 bg-card-bg border-2 border-card-border rounded-xl shadow-card flex flex-row items-center gap-3 px-2 backdrop-blur-sm">
+            <div className="w-full h-14 bg-card-bg border-2 border-card-border rounded-xl shadow-card flex flex-row items-center gap-3 px-2 backdrop-blur-sm">
                 <OptionsButton text="☰" tooltip="Text options" 
                 optionsValue={[<ButtonSelection children={[<Button index={0} text="Short" onClickFunction={() => UpdateTextData("short")}/>, 
                 <Button index={1} text="Middle" onClickFunction={() => UpdateTextData("medium")}/>, 

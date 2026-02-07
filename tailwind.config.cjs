@@ -8,31 +8,31 @@ module.exports = {
     extend: {
       colors: {
         // Background colors - Dunkle, erdige Töne
-        'game-bg': '#1a1614',           // Dunkles Braun-Grau (wie warme Erde)
-        'game-bg-dark': '#0f0d0c',      // Noch dunkler, fast schwarz
-        'game-bg-light': '#252220',     // Etwas heller
+        'game-bg': 'var(--game-bg)',           // Dunkles Braun-Grau (wie warme Erde)
+        'game-bg-dark': 'var(--game-bg-dark)',      // Noch dunkler, fast schwarz
+        'game-bg-light': 'var(--game-bg-light)',     // Etwas heller
         
         // Text colors - Warme, gedämpfte Töne
-        'text-primary': '#e8ddd0',      // Warmes Beige (wie Pergament)
-        'text-secondary': '#a89a8a',    // Gedämpftes Beige-Grau
-        'text-correct': '#8b9d7a',      // Moosgrün
-        'text-incorrect': '#b07a6a',    // Warmes Terrakotta
-        'text-current': '#9fa8a0',      // Salbeigrün-Grau
-        'text-upcoming': '#6b645c',     // Dunkles Grau-Braun
+        'text-primary': 'var(--text-primary)',      // Warmes Beige (wie Pergament)
+        'text-secondary': 'var(--text-secondary)',    // Gedämpftes Beige-Grau
+        'text-correct': 'var(--text-correct)',      // Moosgrün
+        'text-incorrect': 'var(--text-incorrect)',    // Warmes Terrakotta
+        'text-current': 'var(--text-current)',      // Salbeigrün-Grau
+        'text-upcoming': 'var(--text-upcoming)',     // Dunkles Grau-Braun
         
         // Accent colors - Erdige Kontrastfarben
-        'accent-primary': '#c89b5e',    // Warmes Ocker/Gold
-        'accent-secondary': '#b08856',  // Gebranntes Siena
-        'accent-success': '#7d916d',    // Olivgrün
-        'accent-error': '#a67060',      // Terrakotta
-        'accent-warning': '#b8935f',    // Sand/Bronze
+        'accent-primary': 'var(--accent-primary)',    // Warmes Ocker/Gold
+        'accent-secondary': 'var(--accent-secondary)',  // Gebranntes Siena
+        'accent-success': 'var(--accent-success)',    // Olivgrün
+        'accent-error': 'var(--accent-error)',      // Terrakotta
+        'accent-warning': 'var(--accent-warning)',    // Sand/Bronze
         
         // UI elements - Dunkle, warme Töne
-        'card-bg': '#211e1b',           // Dunkles Braun-Grau
-        'card-border': '#3a352f',       // Warmer dunkler Rahmen
-        'input-bg': '#1a1614',          // Wie Hintergrund
-        'input-border': '#3a352f',      // Gedämpfter Rahmen
-        'input-focus': '#c89b5e',       // Goldener Akzent bei Fokus
+        'card-bg': 'var(--card-bg)',           // Dunkles Braun-Grau
+        'card-border': 'var(--card-border)',       // Warmer dunkler Rahmen
+        'input-bg': 'var(--input-bg)',          // Wie Hintergrund
+        'input-border': 'var(--input-border)',      // Gedämpfter Rahmen
+        'input-focus': 'var(--input-focus)',       // Goldener Akzent bei Fokus
       },
       fontFamily: {
         'mono': ['JetBrains Mono', 'Fira Code', 'Courier New', 'monospace'],
@@ -47,7 +47,10 @@ module.exports = {
       animation: {
         'cursor-blink': 'blink 1s step-end infinite',
         'fade-in': 'fadeIn 0.3s ease-in',
+        'fade-out': 'fadeOut 0.2s ease-in forwards',
+        'slide-left': 'slideLeft 0.4s ease-out',
         'slide-up': 'slideUp 0.4s ease-out',
+        'blur-down': 'blurDown 1s ease-in forwards',
         'pulse-success': 'pulseSuccess 0.6s ease-in-out',
         'shake': 'shake 0.5s cubic-bezier(.36,.07,.19,.97)',
       },
@@ -60,9 +63,21 @@ module.exports = {
           '0%': { opacity: '0' },
           '100%': { opacity: '1' },
         },
+        fadeOut: {
+          '0%': { opacity: '1' },
+          '100%': { opacity: '0' },
+        },
+        slideLeft: {
+          '0%': { transform: 'translateX(0px)', opacity: '0' },
+          '100%': { transform: 'translateX(-40px)', opacity: '1' },
+        },
         slideUp: {
           '0%': { transform: 'translateY(20px)', opacity: '0' },
           '100%': { transform: 'translateY(0)', opacity: '1' },
+        },
+        blurDown: {
+          '0%': { opacity: '1', transform: 'translateY(0)', filter: 'blur(0px)' },
+          '100%': { opacity: '0', transform: 'translateY(500px)', filter: 'blur(8px)' },
         },
         pulseSuccess: {
           '0%, 100%': { transform: 'scale(1)' },
@@ -88,5 +103,5 @@ module.exports = {
       },
     },
   },
-  plugins: [],
+  plugins: [require("tailwindcss-motion")],
 }

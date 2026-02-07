@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Results, TextArea, Toolbar, Title} from "./components";
+import { Results, TextArea, Toolbar, Title, Profile} from "./components";
 
 import {
   AccurancyPercentageCalculator,
@@ -43,29 +43,37 @@ function App() {
   }, [game.Seconds, game.Character, game.CorrectCharacter]);
 
   return (
-    <>
-      <div className="w-screen h-screen bg-game-bg">
-        <div className="w-full h-full flex items-center justify-center">
+    <div className="theme-warm-sunset">
+      <div className="w-screen h-screen bg-game-bg overflow-hidden">
+        <div className="w-full h-full flex flex-wrap items-center justify-center">
           {showResults ? 
             <Results setShowResults={setShowResults} game={game} />
             :
-            <div className="w-full h-full flex flex-col gap-3 justify-center items-center">
-              <Toolbar onTextUpdate={() => setTextVersion((v) => v + 1)} />
-              <TextArea
-                startGame={isGameStarted}
-                setStartGame={setIsGameStarted}
-                setShowResults={setShowResults}
-                setGame={setGame}
-                textVersion={textVersion}
-              />
-              <div className={`w-[65%] flex flex-row items-center justify-start`} onMouseEnter={() => setTextHover(true)} onMouseLeave={() => setTextHover(false)} >
-                <Title glow={textHover ? true : false}/>
+            <>
+              <div className=" w-1/5 h-full flex-0">
+                <Profile/>
               </div>
-            </div> 
+              <div className="w-1/5 h-full flex flex-col gap-3 justify-center items-center flex-1">
+                <Toolbar onTextUpdate={() => setTextVersion((v) => v + 1)} />
+                <TextArea
+                  startGame={isGameStarted}
+                  setStartGame={setIsGameStarted}
+                  setShowResults={setShowResults}
+                  setGame={setGame}
+                  textVersion={textVersion}
+                />
+                <div className={`w-[98%] flex flex-row items-center justify-start`} onMouseEnter={() => setTextHover(true)} onMouseLeave={() => setTextHover(false)} >
+                  <Title glow={textHover ? true : false}/>
+                </div>
+              </div> 
+              <div className="w-1/5 h-full flex-2">
+
+              </div>
+            </>
           }
         </div>
       </div>
-    </>
+    </div>
   )
 }
 

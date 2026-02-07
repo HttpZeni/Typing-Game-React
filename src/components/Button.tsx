@@ -1,5 +1,7 @@
+import type { ReactNode } from "react";
+
 interface props{
-    text?: string,
+    text?: string | ReactNode,
     onClickFunction?: (index?: number) => void;
     pressed?: boolean;
     index?: number;
