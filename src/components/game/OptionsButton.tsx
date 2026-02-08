@@ -1,7 +1,7 @@
 import { useState, type ReactElement } from "react";
-import Button from "./Button";
-import ButtonSelection from "./ButtonSelection";
-import type DropDown from "./DropDown";
+import Button from "../ui/Button";
+import ButtonSelection from "../ui/ButtonSelection";
+import type DropDown from "../ui/DropDown";
 
 type optionValues = ReactElement<typeof Button> | ReactElement<typeof ButtonSelection> | ReactElement<typeof DropDown>;
 

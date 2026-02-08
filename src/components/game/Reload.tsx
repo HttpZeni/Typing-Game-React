@@ -1,4 +1,4 @@
-import { setLocalItem } from "../data/localStorage";
+import { setLocalItem } from "../../storage/localStorage";
 
 export function reload(){
     window.location.reload();

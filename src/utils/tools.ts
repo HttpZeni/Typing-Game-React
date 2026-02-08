@@ -1,5 +1,5 @@
-import { FetchGameSettingsData, FetchSettingsData, UpdateGameSettingsData } from "./fetchData";
-import { get_text } from "./fetchText";
+import { FetchGameSettingsData, FetchSettingsData, UpdateGameSettingsData } from "../services/fetchData";
+import { get_text } from "../services/fetchText";
 
 export function isValidEmail(email: string): boolean {
     for (let i = 0; i < email.length; i++){

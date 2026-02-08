@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { FetchGameSettingsData, SubscribeGameSettingsChanges, type Game } from "../tools/fetchData";
-import { CalculateWPM } from "../tools/wpmCalculator";
+import { FetchGameSettingsData, SubscribeGameSettingsChanges, type Game } from "../../services/fetchData";
+import { CalculateWPM } from "../../utils/wpmCalculator";
 
 interface props {
     startGame: boolean;

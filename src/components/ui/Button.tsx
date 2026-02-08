@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 
 interface props{
-    text?: string | ReactNode,
+    text?: string | ReactNode | Element,
     onClickFunction?: (index?: number) => void;
     pressed?: boolean;
     index?: number;

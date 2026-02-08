@@ -1,11 +1,11 @@
-import Button from "./Button"
-import OptionsButton from "./OptionsButton"
-import ButtonSelection from "./ButtonSelection"
-import { FetchSettingsData, UpdateGameSettingsData, UpdateSettingsData } from "../tools/fetchData"
-import type { TextLength } from "../tools/fetchData";
-import { UpdateText, UpdateTimer } from "../tools/tools";
-import DropDown from "./DropDown";
-import { getAllTitle, getTextByTitle } from "../tools/fetchText";
+import Button from "../ui/Button"
+import OptionsButton from "../game/OptionsButton"
+import ButtonSelection from "../ui/ButtonSelection"
+import { FetchSettingsData, UpdateGameSettingsData, UpdateSettingsData } from "../../services/fetchData"
+import type { TextLength } from "../../services/fetchData";
+import { UpdateText, UpdateTimer } from "../../utils/tools";
+import DropDown from "../ui/DropDown";
+import { getAllTitle, getTextByTitle } from "../../services/fetchText";
 
 interface Props {
     onTextUpdate?: () => void;
@@ -50,6 +50,13 @@ export default function Toolbar({ onTextUpdate }: Props){
                 <Button index={1} text="30's" onClickFunction={() => UpdateTimeData(30)} tooltip="Set a timer too 30 seconds."/>, 
                 <Button index={2} text="60's" onClickFunction={() => UpdateTimeData(60)} tooltip="Set a timer too 60 seconds."/>, 
                 <Button index={3} text="∞" onClickFunction={() => UpdateTimeData(-1)} tooltip="Set a timer that runs until u finished typing."/> ]}defaultSelect={3}/>]}/>
+
+                <OptionsButton text="⏹" tooltip="Theme"
+                optionsValue={[
+                    <ButtonSelection children={[
+
+                    ]} defaultSelect={0}/>
+                ]}/>
             </div>
         </>
     )   

@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 import { Results, TextArea, Toolbar, Title, Profile, Button, Window, Input } from "./components";
-import { addUserStatsData, addUser, login} from "./tools/superbaseData";
-import { getLocalItem, setLocalItem } from "./data/localStorage";
-import { isValidEmail } from "./tools/tools";
+import { addUserStatsData, addUser, login } from "./services/supabaseData";
+import { getLocalItem, setLocalItem } from "./storage/localStorage";
+import { isValidEmail } from "./utils/tools";
 
 import {
   AccurancyPercentageCalculator,
@@ -10,7 +10,7 @@ import {
   FetchGameData,
   UpdateText,
   type Game,
-} from "./tools";
+} from "./utils";
 
 function App() {
   const [isGameStarted, setIsGameStarted] = useState<boolean>(false);

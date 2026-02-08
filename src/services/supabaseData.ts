@@ -1,6 +1,6 @@
-import supabase from "../data/supabase-client";
+import supabase from "./supabase/supabase-client";
 import { FetchGameData } from "./fetchData";
-import { setLocalItem } from "../data/localStorage";
+import { setLocalItem } from "../storage/localStorage";
 
 export type UserSettings = {
     id: string;

@@ -1,4 +1,4 @@
-import { FetchGameSettingsData } from "../tools/fetchData";
+import { FetchGameSettingsData } from "../../services/fetchData";
 
 interface props {
     glow?: boolean;

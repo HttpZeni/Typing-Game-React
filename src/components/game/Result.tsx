@@ -1,7 +1,7 @@
-import { StaticResultText } from "./staticResultText";
+import { StaticResultText } from "./StaticResultText";
 import { Graph } from "./Graph";
 
-import type { Game } from "../tools/fetchData";
+import type { Game } from "../../services/fetchData";
 
 interface props {
     setShowResults?: React.Dispatch<React.SetStateAction<boolean>>;

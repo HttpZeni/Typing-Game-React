@@ -1,16 +1,16 @@
 import { useEffect, useRef, useState } from "react";
-import Window from "./window";
-import Button from "./Button";
-import OptionsButton from "./OptionsButton";
-import Input from "./Input";
-import { Graph } from "./Graph";
-import { FetchGameData, type Game } from "../tools/fetchData";
-import DropDown from "./DropDown";
-import { logOut } from "../tools/superbaseData";
-import { changeUsername, getUsername, getUserSettings, changeProfilePicture } from "../tools/superbaseData";
-import { getLocalItem, removeLocalItem } from "../data/localStorage";
-import { reloadWindowOpen } from "./reload";
-import FileUploader from "./FIleUploader";
+import Window from "../layout/Window";
+import Button from "../ui/Button";
+import OptionsButton from "../game/OptionsButton";
+import Input from "../ui/Input";
+import { Graph } from "../game/Graph";
+import { FetchGameData, type Game } from "../../services/fetchData";
+import DropDown from "../ui/DropDown";
+import { logOut } from "../../services/supabaseData";
+import { changeUsername, getUsername, getUserSettings, changeProfilePicture } from "../../services/supabaseData";
+import { getLocalItem, removeLocalItem } from "../../storage/localStorage";
+import { reloadWindowOpen } from "../game/Reload";
+import FileUploader from "./FileUploader";
 
 export default function Profile(){
     const [open, setOpen] = useState<boolean>(false);

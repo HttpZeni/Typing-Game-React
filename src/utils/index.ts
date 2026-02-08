@@ -1,4 +1,4 @@
-export type { Game, GameSettings, LineGraphPoint, Settings, TextLength } from "./fetchData";
+export type { Game, GameSettings, LineGraphPoint, Settings, TextLength } from "../services/fetchData";
 export {
   FetchGameData,
   FetchGameSettingsData,
@@ -10,9 +10,9 @@ export {
   UpdateGameSettingsData,
   UpdateGraphDataSet,
   UpdateSettingsData,
-} from "./fetchData";
+} from "../services/fetchData";
 
-export { get_text } from "./fetchText";
+export { get_text } from "../services/fetchText";
 export { UpdateText } from "./tools";
-export { AccurancyPercentageCalculator } from "./AccurancyPercentageCalculator";
+export { AccurancyPercentageCalculator } from "./AccuracyPercentageCalculator";
 export { CalculateWPM } from "./wpmCalculator";
