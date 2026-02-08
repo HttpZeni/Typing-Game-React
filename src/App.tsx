@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
-import { Results, TextArea, Toolbar, Title, Profile, Button} from "./components";
-import addUserStatsData from "./tools/superbaseData";
+import { Results, TextArea, Toolbar, Title, Profile, Button, Window, Input } from "./components";
+import { addUserStatsData, addUser, login} from "./tools/superbaseData";
+import { getLocalItem, setLocalItem } from "./data/localStorage";
+import { isValidEmail } from "./tools/tools";
 
 import {
   AccurancyPercentageCalculator,
@@ -15,12 +17,21 @@ function App() {
   const [showResults, setShowResults] = useState<boolean>(false);
   const [game, setGame] = useState<Game>(() => FetchGameData(0));
   const [textVersion, setTextVersion] = useState<number>(0);
-
   const [textHover, setTextHover] = useState<boolean>(false);
+  const [loginWindowOpen, setLoginWindowOpen] = useState<boolean>(false);
+  const [authMode, setAuthMode] = useState<"login" | "signup">("login");
+  const [authMessage, setAuthMessage] = useState<string>("");
+
+  const [signUpUsername, setSignUpUsername] = useState<string>("");
+  const [signUpEmail, setSignUpEmail] = useState<string>("");
+  const [signUpPassword, setSignUpPassword] = useState<string>("");
 
   useEffect(() => {
     UpdateText();
     setTextVersion(v => v + 1);
+    if (getLocalItem("logged in") === null){
+      setLocalItem("logged in", "false");
+    }
   }, []);
 
   useEffect(() => {
@@ -43,9 +54,138 @@ function App() {
     addUserStatsData();
   }, [showResults])
 
-  const handleClick = () =>{
+  const handleClick = () => {
     setShowResults(!showResults)
   }
+
+  const handleLoginOrSignUpBtn = () => {
+    setLoginWindowOpen(!loginWindowOpen);
+  }
+
+  const handleSignUp = (type: "Username" | "Email" | "Password", value: string) => {
+    if (type === "Username") setSignUpUsername(value);
+    if (type === "Email") setSignUpEmail(value);
+    if (type === "Password") setSignUpPassword(value);
+  }
+
+  const handleSignupBtn = async () => {
+    setAuthMode("signup")
+    console.log(getLocalItem("logged in"))
+    if (getLocalItem("logged in") === "true") return;
+    const result = await addUser(signUpUsername, signUpEmail, signUpPassword);
+    if (result?.status === "verify") {
+      setAuthMessage("Please confirm your email.");
+    } else if (result?.status === "error") {
+      setAuthMessage("Error, please try again.");
+    } else {
+      setAuthMessage("");
+    }
+  }
+
+  const handleLoginBtn = async () => {
+    await login(signUpEmail, signUpPassword);
+    setAuthMode("login");
+    setAuthMessage("");
+    window.location.reload();
+  }
+
+  const loginWidnow = (
+    <div className="w-full h-full flex flex-col md:flex-row gap-6 p-6 md:p-8 bg-card-bg border-2 border-card-border rounded-xl shadow-card">
+      <div className="md:w-5/12 w-full flex flex-col gap-5 bg-game-bg-light border-2 border-card-border rounded-lg p-6">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <div className="h-2 w-2 rounded-full bg-accent-warning shadow-glow-yellow" />
+            <div className="h-2 w-2 rounded-full bg-accent-primary shadow-glow-purple" />
+            <div className="h-2 w-2 rounded-full bg-accent-success shadow-glow-green" />
+          </div>
+          <div className="text-xs font-display uppercase tracking-[0.35em] text-text-secondary">
+            Access
+          </div>
+        </div>
+
+        <div className="flex flex-col gap-2">
+          <h1 className="text-4xl md:text-5xl font-display font-bold tracking-widest text-accent-primary">
+            WELCOME
+          </h1>
+          <p className="text-text-secondary font-display text-sm leading-relaxed">
+            Log in to sync stats, save streaks and unlock custom themes.
+          </p>
+        </div>
+
+        <div className="flex flex-col gap-3 text-sm font-display text-text-primary">
+          <div className="flex items-center justify-between border-b border-card-border/70 pb-2">
+            <span>Sync progress</span>
+            <span className="text-accent-primary">Ready</span>
+          </div>
+          <div className="flex items-center justify-between border-b border-card-border/70 pb-2">
+            <span>Keep streaks</span>
+            <span className="text-accent-primary">Active</span>
+          </div>
+          <div className="flex items-center justify-between">
+            <span>Secure session</span>
+            <span className="text-accent-primary">Enabled</span>
+          </div>
+        </div>
+
+        <div className="mt-auto text-xs font-display uppercase tracking-[0.3em] text-text-secondary">
+          Typing Game
+        </div>
+      </div>
+
+      <div className="md:w-7/12 w-full flex flex-col gap-5">
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => setAuthMode("login")}
+            className={`px-4 py-2 rounded-lg border-2 font-display font-semibold transition-all duration-200 ${
+              authMode === "login"
+                ? "border-accent-primary text-accent-primary shadow-glow-purple bg-game-bg-light"
+                : "border-card-border text-text-primary bg-card-bg opacity-80 hover:border-accent-primary hover:text-accent-primary hover:shadow-glow-purple hover:bg-game-bg-light"
+            }`}
+          >
+            Login
+          </button>
+          <button
+            className={`px-4 py-2 rounded-lg border-2 font-display font-semibold transition-all duration-200 ${
+              authMode === "signup"
+                ? "border-accent-primary text-accent-primary shadow-glow-purple bg-game-bg-light"
+                : "border-card-border text-text-primary bg-card-bg opacity-80 hover:border-accent-primary hover:text-accent-primary hover:shadow-glow-purple hover:bg-game-bg-light"
+            }`}
+            onClick={() => setAuthMode("signup")}
+          >
+            Sign up
+          </button>
+        </div>
+
+        <div className="h-px w-full bg-card-border/70" />
+
+        <div className="w-full flex flex-col gap-4">
+          {authMode === "signup" ? (
+            <Input onChange={(value) => handleSignUp("Username", value)} label="Username" placeholder="Enter your username.." type="text" className="w-full" />
+          ) : null}
+          <Input onChange={(value) => handleSignUp("Email", value)} label="Email" placeholder="Enter your email.." type="email" className="w-full" />
+          <Input onChange={(value) => handleSignUp("Password", value)} label="Password" placeholder="Enter your password.." type="password" className="w-full" />
+        </div>
+
+        <div className="h-px w-full bg-card-border/70" />
+
+        <div className="flex items-center justify-between">
+          <div className="text-xs font-display uppercase tracking-[0.2em] text-text-secondary">
+            {authMode === "login" ? "No account? Sign up" : "Already have an account?"}
+          </div>
+          <div className="flex items-center gap-3">
+            {authMode === "signup" ? (
+              <Button disabled={!isValidEmail(signUpEmail)} onClickFunction={handleSignupBtn} text="Create Account" />
+            ) : (
+              <Button disabled={!isValidEmail(signUpEmail)} onClickFunction={handleLoginBtn} text="Login" />
+            )}
+          </div>
+        </div>
+        {authMessage ? (
+          <div className="text-xs font-display text-accent-warning">{authMessage}</div>
+        ) : null}
+      </div>
+    </div>
+  )
 
   return (
     <div className="theme-warm-sunset">
@@ -65,8 +205,9 @@ function App() {
             :
             <>
               <div className=" w-1/5 h-full flex-0">
-                <Profile/>
+                {getLocalItem("logged in") === "false" ? <div className="relative z-50 p-5"><Button onClickFunction={handleLoginOrSignUpBtn} text="Login / Sign up"/></div> : <Profile/>}
               </div>
+              {loginWindowOpen ? <Window value={loginWidnow} width={"40%"} height={"45%"} className="bg-transparent border-none"/> : null}
               <div className="w-1/5 h-full flex flex-col gap-3 justify-center items-center flex-1">
                 <Toolbar onTextUpdate={() => setTextVersion((v) => v + 1)} />
                 <TextArea

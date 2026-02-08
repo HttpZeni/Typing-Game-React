@@ -1,6 +1,7 @@
 import Profile from "./profile";
 import Title from "./Title";
 import Window from "./window";
+import Input from "./Input";
 
 export { default as Button } from "./Button";
 export { default as ButtonSelection } from "./ButtonSelection";
@@ -13,3 +14,4 @@ export { default as Toolbar } from "./toolbar";
 export { Title };
 export { Profile };
 export { Window };
+export { Input };
