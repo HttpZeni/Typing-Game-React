@@ -12,7 +12,7 @@ export function Results({ game }: props) {
 
     return (
         <>
-            <div className="w-4/5 h-4/5 bg-card-bg border border-card-border rounded-lg shadow-card flex flex-col">
+            <div className="w-full h-full bg-card-bg border border-card-border rounded-lg shadow-card flex flex-col">
                 <div className="w-full h-28 border-b border-card-border flex flex-row items-center justify-around px-12">
                     <StaticResultText text={`${game.WPM}`} fontSize={42} infoText="WPM" color="text-accent-primary" />
                     <div className="h-16 w-px bg-card-border"></div>

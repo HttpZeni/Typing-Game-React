@@ -24,4 +24,5 @@ __pycache__/
 *.njsproj
 *.sln
 *.sw?
+.env
 src/tools/tester.py

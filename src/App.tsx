@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
-import { Results, TextArea, Toolbar, Title, Profile} from "./components";
+import { Results, TextArea, Toolbar, Title, Profile, Button} from "./components";
+import addUserStatsData from "./tools/superbaseData";
 
 import {
   AccurancyPercentageCalculator,
@@ -29,12 +30,8 @@ function App() {
       const Errors = prev.Character - prev.CorrectCharacter;
       const Accurancy = AccurancyPercentageCalculator(prev.CorrectCharacter, prev.Character);
 
-      if (
-        Minutes === prev.Minutes &&
-        WPM === prev.WPM &&
-        Errors === prev.Errors &&
-        Accurancy === prev.Accurancy
-      ) {
+      if ( Minutes === prev.Minutes && WPM === prev.WPM &&
+        Errors === prev.Errors && Accurancy === prev.Accurancy ) {
         return prev;
       }
 
@@ -42,12 +39,29 @@ function App() {
     });
   }, [game.Seconds, game.Character, game.CorrectCharacter]);
 
+  useEffect(() => {
+    addUserStatsData();
+  }, [showResults])
+
+  const handleClick = () =>{
+    setShowResults(!showResults)
+  }
+
   return (
     <div className="theme-warm-sunset">
       <div className="w-screen h-screen bg-game-bg overflow-hidden">
         <div className="w-full h-full flex flex-wrap items-center justify-center">
           {showResults ? 
-            <Results setShowResults={setShowResults} game={game} />
+            <div className="w-full h-full flex flex-row">
+              <div className="absolute w-fit h-fit flex items-start p-5">
+                <Button onClickFunction={handleClick} text={"⟳"}/>
+              </div>
+              <div className="w-full h-full flex items-center justify-center">
+                <div className="w-4/5 h-4/5">
+                  <Results setShowResults={setShowResults} game={game} />
+                </div>
+              </div>
+            </div>
             :
             <>
               <div className=" w-1/5 h-full flex-0">

@@ -7,7 +7,7 @@ import DropDown from "./DropDown";
 
 export default function Profile(){
     const [open, setOpen] = useState<boolean>(false);
-    const [game, setGame] = useState<Game>(() => FetchGameData(0));
+    const game = useRef<Game>(FetchGameData(0));
 
     const handleClick = () => {
         setOpen(!open);
@@ -67,7 +67,7 @@ export default function Profile(){
                     <div className="w-4/6 h-full bg-game-bg-light rounded-md p-5">
                         <DropDown options={["1", "2", "3", "4", "5"]}/>
                         <Graph
-                            data={game.LineGraphDataSet.map((p) => ({ x: p.Seconds, y: p.WPM }))}
+                            data={game.current.LineGraphDataSet.map((p) => ({ x: p.Seconds, y: p.WPM }))}
                             lineLabel="WPM"
                             xTitle="TIME (SECONDS)"
                             yTitle="WORDS PER MINUTE"
