@@ -1,18 +1,15 @@
-import { useState, type ReactElement } from "react";
-import Button from "../ui/Button";
+import { useState, type ReactElement, type ComponentProps, isValidElement, cloneElement } from "react";
 import ButtonSelection from "../ui/ButtonSelection";
-import type DropDown from "../ui/DropDown";
-
-type optionValues = ReactElement<typeof Button> | ReactElement<typeof ButtonSelection> | ReactElement<typeof DropDown>;
 
 interface props{
     text?: string,
     onClickFunction?: () => void;
-    optionsValue?: optionValues[];
+    optionsValue?: ReactElement[];
     tooltip?: string;
+    itemsPerRow?: number;
 }
 
-export default function OptionsButton({text, onClickFunction, optionsValue, tooltip}: props){
+export default function OptionsButton({text, onClickFunction, optionsValue, tooltip, itemsPerRow}: props){
     const [pressed, setPressed] = useState<boolean>(false);
 
     const handeClick = () => {
@@ -20,17 +17,38 @@ export default function OptionsButton({text, onClickFunction, optionsValue, tool
         onClickFunction?.();
     }
 
+    const itemsPerRowSafe = typeof itemsPerRow === "number" && itemsPerRow > 0 ? Math.floor(itemsPerRow) : undefined;
+
+    const isButtonSelection = (
+        element: ReactElement
+    ): element is ReactElement<ComponentProps<typeof ButtonSelection>> =>
+        isValidElement(element) && element.type === ButtonSelection;
+
     return(
         <div className="relative flex flex-col items-center group/options">
             {/* Options Menu */}
             <div
-                className={`absolute bottom-full mb-3 w-fit h-fit p-2 bg-card-bg border-2 border-card-border rounded-xl shadow-card flex flex-row gap-2 backdrop-blur-sm transition-all duration-200 ${
-                    pressed ? "opacity-100 scale-100 pointer-events-auto" : "opacity-0 scale-95 pointer-events-none" }`}>
-                {optionsValue?.map((item, index) => (
-                    <div key={index}>
-                        {item}
-                    </div>
-                ))}
+                className={`absolute bottom-full mb-3 w-fit h-fit p-2 bg-card-bg border-2 border-card-border rounded-xl shadow-card gap-2 backdrop-blur-sm transition-all duration-200 ${
+                    itemsPerRowSafe ? "grid" : "flex flex-row"
+                } ${
+                    pressed ? "opacity-100 scale-100 pointer-events-auto" : "opacity-0 scale-95 pointer-events-none" }`}
+                style={itemsPerRowSafe ? { gridTemplateColumns: `repeat(${itemsPerRowSafe}, max-content)` } : undefined}
+            >
+                {optionsValue?.map((item, index) => {
+                    if (itemsPerRowSafe && isButtonSelection(item)) {
+                        return (
+                            <div key={index}>
+                                {cloneElement(item, { itemsPerRow: itemsPerRowSafe })}
+                            </div>
+                        );
+                    }
+
+                    return (
+                        <div key={index}>
+                            {item}
+                        </div>
+                    );
+                })}
             </div>
 
             {tooltip && !pressed && (

@@ -1,19 +1,20 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { FetchGameSettingsData, SubscribeGameSettingsChanges, type Game } from "../../services/fetchData";
+import { FetchGameSettingsData, SubscribeGameSettingsChanges } from "../../services/fetchData";
 import { CalculateWPM } from "../../utils/wpmCalculator";
-
-interface props {
-    startGame: boolean;
-    setStartGame: React.Dispatch<React.SetStateAction<boolean>>;
-    setShowResults: React.Dispatch<React.SetStateAction<boolean>>;
-    setGame: React.Dispatch<React.SetStateAction<Game>>;
-    textVersion?: number;
-    textlength?: string;
-}
+import { appendUserRound } from "../../services/supabaseData";
+import { AccurancyPercentageCalculator } from "../../utils";
+import { useGameStore } from "../../state";
 
 type TextState = Record<string, string>;
 
-export default function TextArea({ startGame, setStartGame, setShowResults, setGame, textVersion }: props) {
+export default function TextArea() {
+    const {
+        isGameStarted: startGame,
+        setIsGameStarted: setStartGame,
+        setShowResults,
+        setGame,
+        textVersion,
+    } = useGameStore();
     const [userInput, setUserInput] = useState<string>("");
     const [charClasses, setCharClasses] = useState<string[]>([]);
     const [timer, setTimer] = useState<number>(FetchGameSettingsData(0).Timer);
@@ -36,6 +37,30 @@ export default function TextArea({ startGame, setStartGame, setShowResults, setG
     const containerRef = useRef<HTMLDivElement | null>(null);
     const totalErrorsRef = useRef(0);
     const totalTypedRef = useRef(0);
+    const totalErrorLetters = useRef<string[]>([]);
+    const hasSavedRoundRef = useRef(false);
+    const elapsedSecondsRef = useRef(0);
+
+    const saveRound = useCallback(async () => {
+        if (hasSavedRoundRef.current) return;
+        hasSavedRoundRef.current = true;
+
+        const correct = Math.max(totalTypedRef.current - totalErrorsRef.current, 0);
+        const elapsedSeconds = Math.max(elapsedSecondsRef.current, 0);
+        const minutes = elapsedSeconds / 60;
+        const round = {
+            time: elapsedSeconds,
+            accuracy: AccurancyPercentageCalculator(correct, Math.max(totalTypedRef.current, 1)),
+            wpm: CalculateWPM(totalTypedRef.current, minutes),
+            errorLetters: totalErrorLetters.current,
+        };
+
+        try {
+            await appendUserRound(round);
+        } catch (err) {
+            console.log("appendUserRound failed:", err);
+        }
+    }, [flatText.length]);
 
     const resetGame = useCallback(
         (nextText?: string) => {
@@ -50,6 +75,9 @@ export default function TextArea({ startGame, setStartGame, setShowResults, setG
             userInputRef.current = "";
             totalErrorsRef.current = 0;
             totalTypedRef.current = 0;
+            totalErrorLetters.current = [];
+            hasSavedRoundRef.current = false;
+            elapsedSecondsRef.current = 0;
 
             setCharClasses(Array.from({ length: resetFlatText.length }, () => textState.Normal));
             setTimer(resetTimer);
@@ -97,7 +125,6 @@ export default function TextArea({ startGame, setStartGame, setShowResults, setG
         if (timerChanged) {
             resetGame();
             return;
-            setTextState(textState); // only here because it need usage
         }
 
         resetGame();
@@ -166,6 +193,7 @@ export default function TextArea({ startGame, setStartGame, setShowResults, setG
         }, 5000);
 
         const t = setInterval(() => {
+            elapsedSecondsRef.current += 1;
             setGame((prev) => ({ ...prev, Seconds: prev.Seconds + 1 }));
 
             if (!hasTimeLimit) return;
@@ -176,7 +204,10 @@ export default function TextArea({ startGame, setStartGame, setShowResults, setG
             if (timerRef.current > 0) return;
 
             setStartGame(false);
-            setShowResults(true);
+            (async () => {
+                await saveRound();
+                setShowResults(true);
+            })();
 
             clearInterval(t);
             clearInterval(g);
@@ -242,9 +273,12 @@ export default function TextArea({ startGame, setStartGame, setShowResults, setG
 
         if (idx >= flatText.length - 1) {
             setStartGame(false);
-            setShowResults(true);
+            (async () => {
+                await saveRound();
+                setShowResults(true);
+            })();
         }
-    }, [userInput, flatText, setGame, setShowResults, setStartGame, textState]);
+    }, [userInput, flatText, saveRound, setGame, setShowResults, setStartGame, textState]);
 
     const renderLine = (line: string, lineIndex: number) => {
         let localIndex = 0;
@@ -322,6 +356,7 @@ export default function TextArea({ startGame, setStartGame, setShowResults, setG
                     totalTypedRef.current += 1;
                     if (flatText[inputIndex] !== currentKey) {
                         totalErrorsRef.current += 1;
+                        totalErrorLetters.current.push(flatText[inputIndex]);
                     }
                     setUserInput((prevInput) => {
                         const newInput = prevInput + currentKey;

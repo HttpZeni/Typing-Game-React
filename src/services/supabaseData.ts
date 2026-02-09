@@ -8,6 +8,21 @@ export type UserSettings = {
     profilePicture: string | null;
 }
 
+export type UserStats = {
+  id?: number
+  userId: string
+  created_at: string
+  rounds: {
+    time: number
+    accuracy: number
+    wpm: number
+    errorLetters: string[]
+  }[]
+}
+
+export type Round = UserStats["rounds"][number]
+
+
 export async function addUserStatsData() {
     const newData = {
         Round: 0,
@@ -15,7 +30,6 @@ export async function addUserStatsData() {
         WPM: FetchGameData(0).WPM,
         Accuracy: FetchGameData(0).Accurancy,
         Errors: FetchGameData(0).Errors,
-        ErrorLetters: {}
     }
 
     const {data, error} = await supabase.from("UserStats").insert([newData]).single();
@@ -200,4 +214,50 @@ export async function changeProfilePicture(file: File) {
   }
 
   return data.publicUrl;
+}
+
+export async function getUserStats(){
+  const { data: { user }, error: userError } = await supabase.auth.getUser();
+  if (userError || !user) throw userError ?? new Error("No user");
+
+  const { data, error } = await supabase
+    .from("UserStats")
+    .select("*")
+    .eq("userId", user.id)
+    .maybeSingle();
+
+  if (error) throw error;
+  return (data ?? {
+    userId: user.id,
+    created_at: new Date().toISOString(),
+    rounds: [],
+  }) as UserStats
+}
+
+export async function updateUserStats(patch: Partial<UserStats>) {
+  const { data: { user }, error: userError } = await supabase.auth.getUser();
+  if (userError || !user) throw userError ?? new Error("No user");
+
+  const { data, error } = await supabase
+    .from("UserStats")
+    .upsert({ userId: user.id, ...patch }, { onConflict: "userId" })
+    .select()
+    .single();
+
+  if (error) {
+    console.log("updateUserStats error:", error);
+    throw error;
+  }
+  if (!data) {
+    console.log("updateUserStats returned no data", { patch, userId: user.id });
+  }
+  return data as UserStats;
+}
+
+export async function appendUserRound(newRound: Round): Promise<UserStats> {
+  console.log("appendUserRound called", newRound);
+  const stats = await getUserStats()
+  const updatedRounds: Round[] = [...stats.rounds, newRound]
+
+  return updateUserStats({ rounds: updatedRounds })
 }

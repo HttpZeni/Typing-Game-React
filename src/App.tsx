@@ -1,22 +1,14 @@
 import { useEffect, useState } from "react";
 import { Results, TextArea, Toolbar, Title, Profile, Button, Window, Input } from "./components";
-import { addUserStatsData, addUser, login } from "./services/supabaseData";
+import LoadingScreen from "./components/ui/LoadingScreen";
+import { addUser, login } from "./services/supabaseData";
 import { getLocalItem, setLocalItem } from "./storage/localStorage";
 import { isValidEmail } from "./utils/tools";
+import { useGameStore } from "./state";
 
-import {
-  AccurancyPercentageCalculator,
-  CalculateWPM,
-  FetchGameData,
-  UpdateText,
-  type Game,
-} from "./utils";
+import { UpdateText } from "./utils";
 
 function App() {
-  const [isGameStarted, setIsGameStarted] = useState<boolean>(false);
-  const [showResults, setShowResults] = useState<boolean>(false);
-  const [game, setGame] = useState<Game>(() => FetchGameData(0));
-  const [textVersion, setTextVersion] = useState<number>(0);
   const [textHover, setTextHover] = useState<boolean>(false);
   const [loginWindowOpen, setLoginWindowOpen] = useState<boolean>(false);
   const [authMode, setAuthMode] = useState<"login" | "signup">("login");
@@ -26,33 +18,20 @@ function App() {
   const [signUpEmail, setSignUpEmail] = useState<string>("");
   const [signUpPassword, setSignUpPassword] = useState<string>("");
 
+  const {
+    showResults,
+    setShowResults,
+    bumpTextVersion,
+    loadingStats,
+  } = useGameStore();
+
   useEffect(() => {
     UpdateText();
-    setTextVersion(v => v + 1);
+    bumpTextVersion();
     if (getLocalItem("logged in") === null){
       setLocalItem("logged in", "false");
     }
-  }, []);
-
-  useEffect(() => {
-    setGame((prev) => {
-      const Minutes = prev.Seconds / 60;
-      const WPM = CalculateWPM(prev.Character, Minutes);
-      const Errors = prev.Character - prev.CorrectCharacter;
-      const Accurancy = AccurancyPercentageCalculator(prev.CorrectCharacter, prev.Character);
-
-      if ( Minutes === prev.Minutes && WPM === prev.WPM &&
-        Errors === prev.Errors && Accurancy === prev.Accurancy ) {
-        return prev;
-      }
-
-      return { ...prev, Minutes, WPM, Errors, Accurancy };
-    });
-  }, [game.Seconds, game.Character, game.CorrectCharacter]);
-
-  useEffect(() => {
-    addUserStatsData();
-  }, [showResults])
+  }, [bumpTextVersion]);
 
   const handleClick = () => {
     setShowResults(!showResults)
@@ -188,7 +167,7 @@ function App() {
   )
 
   return (
-    <div className="theme-warm-sunset">
+    <div className={`${getLocalItem("theme")}`}>
       <div className="w-screen h-screen bg-game-bg overflow-hidden">
         <div className="w-full h-full flex flex-wrap items-center justify-center">
           {showResults ? 
@@ -198,7 +177,11 @@ function App() {
               </div>
               <div className="w-full h-full flex items-center justify-center">
                 <div className="w-4/5 h-4/5">
-                  <Results setShowResults={setShowResults} game={game} />
+                  {loadingStats ? (
+                    <LoadingScreen text="Loading results..." />
+                  ) : (
+                    <Results />
+                  )}
                 </div>
               </div>
             </div>
@@ -207,16 +190,17 @@ function App() {
               <div className=" w-1/5 h-full flex-0">
                 {getLocalItem("logged in") === "false" ? <div className="relative z-50 p-5"><Button onClickFunction={handleLoginOrSignUpBtn} text="Login / Sign up"/></div> : <Profile/>}
               </div>
-              {loginWindowOpen ? <Window value={loginWidnow} width={"40%"} height={"45%"} className="bg-transparent border-none"/> : null}
-              <div className="w-1/5 h-full flex flex-col gap-3 justify-center items-center flex-1">
-                <Toolbar onTextUpdate={() => setTextVersion((v) => v + 1)} />
-                <TextArea
-                  startGame={isGameStarted}
-                  setStartGame={setIsGameStarted}
-                  setShowResults={setShowResults}
-                  setGame={setGame}
-                  textVersion={textVersion}
+              {loginWindowOpen ? (
+                <Window
+                  value={loginWidnow}
+                  width={"min(980px, 92vw)"}
+                  height={"min(640px, 90vh)"}
+                  className="bg-transparent border-none"
                 />
+              ) : null}
+              <div className="w-1/5 h-full flex flex-col gap-3 justify-center items-center flex-1">
+                <Toolbar />
+                <TextArea />
                 <div className={`w-[98%] flex flex-row items-center justify-start`} onMouseEnter={() => setTextHover(true)} onMouseLeave={() => setTextHover(false)} >
                   <Title glow={textHover ? true : false}/>
                 </div>

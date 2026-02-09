@@ -17,6 +17,7 @@ export type Game = {
     CorrectCharacter: number;
     WPM: number;
     Errors: number;
+    ErrorLetters: string[];
     LineGraphDataSet: LineGraphPoint[];
 };
 

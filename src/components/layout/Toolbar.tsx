@@ -6,17 +6,42 @@ import type { TextLength } from "../../services/fetchData";
 import { UpdateText, UpdateTimer } from "../../utils/tools";
 import DropDown from "../ui/DropDown";
 import { getAllTitle, getTextByTitle } from "../../services/fetchText";
+import { useEffect, useState } from "react";
+import { GetAllThemes } from "../../utils/tools";
+import { setLocalItem, getLocalItem } from "../../storage/localStorage";
+import { reload } from "../game/Reload";
+import { useGameStore } from "../../state";
 
-interface Props {
-    onTextUpdate?: () => void;
-}
+export default function Toolbar(){
+    const { bumpTextVersion } = useGameStore();
+    const [themes, setThemes] = useState<string[]>();
 
-export default function Toolbar({ onTextUpdate }: Props){
+    useEffect(() => {
+        setThemes(GetAllThemes());
+        if (getLocalItem("theme") === undefined){
+            setLocalItem("theme", "theme-earthy-earth");
+        }
+        if (getLocalItem("theme-index") ===  ""){
+            setLocalItem("theme-index", "0");
+        }
+        
+        console.log(`Theme: ${getLocalItem("theme")}\nTheme-Index: ${getLocalItem("theme-index")}`)
+    }, [])
+
+    useEffect(() => {
+        console.log("Themes: ", themes);
+    }, [themes])
+
+    const handleThemeBtn = (theme: string, themeIndex: string) => {
+        setLocalItem("theme", theme);
+        setLocalItem("theme-index", themeIndex);
+        reload();
+    }
 
     const UpdateTextData = (length: TextLength) => {
         UpdateSettingsData(0, { Text: { Length: length}});
         UpdateText();
-        onTextUpdate?.();
+        bumpTextVersion();
     }
 
     const UpdateTimeData = (time: number) => {
@@ -51,11 +76,14 @@ export default function Toolbar({ onTextUpdate }: Props){
                 <Button index={2} text="60's" onClickFunction={() => UpdateTimeData(60)} tooltip="Set a timer too 60 seconds."/>, 
                 <Button index={3} text="∞" onClickFunction={() => UpdateTimeData(-1)} tooltip="Set a timer that runs until u finished typing."/> ]}defaultSelect={3}/>]}/>
 
-                <OptionsButton text="⏹" tooltip="Theme"
+                <OptionsButton text="⏹" tooltip="Theme" itemsPerRow={themes !== undefined ? Math.floor(themes.length / 2) : 10}
                 optionsValue={[
-                    <ButtonSelection children={[
-
-                    ]} defaultSelect={0}/>
+                    <ButtonSelection children={themes !== undefined ? themes.map((theme, index) => (
+                        <Button key={index} text="" className={` h-10 ${theme} text-accent-primary`} onClickFunction={() => handleThemeBtn(theme, `${index}`)}/>
+                    ))
+                    :
+                    [<Button/>, <Button/>]
+                } defaultSelect={parseInt(getLocalItem("theme-index"))}/>
                 ]}/>
             </div>
         </>

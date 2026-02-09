@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import Window from "../layout/Window";
 import Button from "../ui/Button";
 import OptionsButton from "../game/OptionsButton";
@@ -11,6 +11,8 @@ import { changeUsername, getUsername, getUserSettings, changeProfilePicture } fr
 import { getLocalItem, removeLocalItem } from "../../storage/localStorage";
 import { reloadWindowOpen } from "../game/Reload";
 import FileUploader from "./FileUploader";
+import { useGameStore } from "../../state";
+import { CalculateAverageAcc, CalculateAverageWPM, CalculateBestWPM, CalculateErrorHotspots, CalculateStreak } from "../../utils/tools";
 
 export default function Profile(){
     const [open, setOpen] = useState<boolean>(false);
@@ -21,6 +23,19 @@ export default function Profile(){
     const [username, setUsername] = useState<string>("");
     const [profilePicture, setProfilePicture] = useState<string | null>(null);
     const [file, setFile] = useState<File | null>(null);
+    const { stats, loadStats } = useGameStore();
+
+    const userStats = useMemo(() => {
+        const rounds = stats?.rounds ?? [];
+        const hotspot = CalculateErrorHotspots(rounds);
+        return {
+            "Average Acc": CalculateAverageAcc(rounds),
+            "Average WPM": CalculateAverageWPM(rounds),
+            "Bet WPM": CalculateBestWPM(rounds)?.[0] ?? 0,
+            "Error Hotspots": Object.keys(hotspot ?? {})[0] ?? "",
+            "Streaks": CalculateStreak(rounds)
+        };
+    }, [open, stats]);
 
     useEffect(() => {
         let alive = true;
@@ -53,6 +68,11 @@ export default function Profile(){
                 console.log("Error updating profile picture: ", error);
             });
     }, [file])
+
+    useEffect(() => {
+        if (!open) return;
+        loadStats();
+    }, [open, loadStats]);
 
     const handleClick = () => {
         setOpen(!open);
@@ -111,27 +131,27 @@ export default function Profile(){
                     <ul className="list-none pl-0 space-y-2 text-lg text-text-primary font-mono font-extrabold">
                         <li className="flex items-center justify-between">
                             <span>Average Accuracy</span>
-                            <span>0</span>
+                            <span>{userStats["Average Acc"] !== undefined ? Math.round(userStats["Average Acc"] * 100) / 100 : 0}</span>
                         </li>
                         <div className="h-px w-full bg-white/80"/>
                         <li className="flex items-center justify-between">
                             <span>Average WPM</span>
-                            <span>0</span>
+                            <span>{userStats["Average WPM"] !== undefined ? Math.round(userStats["Average WPM"] * 100) / 100 : 0}</span>
                         </li>
                         <div className="h-px w-full bg-white/80"/>
                         <li className="flex items-center justify-between">
                             <span>Best WPM</span>
-                            <span>0</span>
+                            <span>{userStats["Bet WPM"]}</span>
                         </li>
                         <div className="h-px w-full bg-white/80"/>
                         <li className="flex items-center justify-between">
                             <span>Error Hotspots</span>
-                            <span>0</span>
+                            <span>{userStats["Error Hotspots"]}</span>
                         </li>
                         <div className="h-px w-full bg-white/80"/>
                         <li className="flex items-center justify-between">
-                            <span>Streaks</span>
-                            <span>0</span>
+                            <span>Streak</span>
+                            <span>{userStats["Streaks"]}</span>
                         </li>
                     </ul>
                 </div>

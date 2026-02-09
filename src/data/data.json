@@ -8,6 +8,7 @@
             "CorrectCharacter": 0,
             "WPM": 0,
             "Errors": 0,
+            "ErrorLetters": [],
             "LineGraphDataSet": [
 
             ]

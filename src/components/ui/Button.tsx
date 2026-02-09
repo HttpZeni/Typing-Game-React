@@ -1,15 +1,16 @@
 import type { ReactNode } from "react";
 
 interface props{
-    text?: string | ReactNode | Element,
+    text?: string | ReactNode,
     onClickFunction?: (index?: number) => void;
     pressed?: boolean;
     index?: number;
     tooltip?: string;
-    disabled?: boolean
+    disabled?: boolean;
+    className?: string;
 }
 
-export default function Button({ text, onClickFunction, pressed = false, index, tooltip, disabled = false }: props) {
+export default function Button({ text, onClickFunction, pressed = false, index, tooltip, disabled = false, className }: props) {
   const handleButton = () => {
     if (disabled) return;
     onClickFunction?.(index);
@@ -25,7 +26,7 @@ export default function Button({ text, onClickFunction, pressed = false, index, 
         disabled={disabled}
         aria-pressed={pressed}
         onClick={handleButton}
-        className={`w-fit h-9 px-3 bg-card-bg rounded-lg border-2 font-display font-semibold transition-all duration-200 whitespace-nowrap 
+        className={`w-fit h-9 px-3 bg-card-bg rounded-lg border-2 font-display font-semibold transition-all duration-200 whitespace-nowrap ${className} 
         ${disabled 
           ? 'opacity-50 cursor-not-allowed border-card-border text-text-secondary bg-game-bg-dark' 
           : `active:scale-95 ${pressedClasses}`
