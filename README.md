@@ -11,6 +11,7 @@ A simple typing game built with React and TypeScript to help you practice your t
 - Keyboard-first flow, with `Esc` to reset anytime
 - Theme switcher with multiple visual presets
 - Optional profile view with stats and account settings (Supabase)
+- Modular chart component with multi-series support
 
 ## Tech Stack
 - React 19 + TypeScript
@@ -68,6 +69,10 @@ You can customize the text samples used in the game by editing the `src/data/tex
 
 ## State Management
 Shared game state (e.g., `game`, `showResults`, `stats`) lives in a lightweight React Context store under `src/state`. Components can access it via `useGameStore()`.
+
+## UI Utilities
+- `Tooltip` component in `src/components/ui/Tooltip.tsx` for hover labels.
+- `Graph` component takes `data`, `xKey`, and `series` to plot multiple lines from the same dataset.
 
 ## Project Structure
 - `src/components`: Contains all the UI components like typing area, toolbar, results, and chart.

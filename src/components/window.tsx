@@ -39,7 +39,7 @@ export default function Window({value, width="fit", height="fit", bgClass="bg-ca
             }}>
             <div
             style={{width: `${typeof width === "string" ? width : `${width}%`}`, height: `${typeof height === "string" ? height : `${height}%`}`}}
-            className={`relative z-10 w-fit h-fit p-10 rounded-lg ${bgClass} ${borderClass} ${className ?? ""} ${isClosing ? "animate-blur-down" : ""}`}>
+            className={`relative overflow-visible z-10 w-fit h-fit p-10 rounded-lg ${bgClass} ${borderClass} ${className ?? ""} ${isClosing ? "animate-blur-down" : ""}`}>
                 {value}
             </div>
         </div>

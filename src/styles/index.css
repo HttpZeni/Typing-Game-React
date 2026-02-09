@@ -2,11 +2,6 @@
 @tailwind components; 
 @tailwind utilities;
 
-/* ========================================
-   EARTHY THEMES
-   Natürliche, warme Erdtöne
-   ======================================== */
-
 .theme-earthy-earth {
     --game-bg: #1a1614;
     --game-bg-dark: #0f0d0c;
@@ -157,10 +152,55 @@
     --input-focus: #9b7d6b;
 }
 
-/* ========================================
-   WARM THEMES
-   Warme, gemütliche Farben
-   ======================================== */
+.theme-earthy-moss-stone {
+    --game-bg: #181a16;
+    --game-bg-dark: #0d0f0c;
+    --game-bg-light: #232522;
+    
+    --text-primary: #d8e0d0;
+    --text-secondary: #8a9280;
+    --text-correct: #7a9d75;
+    --text-incorrect: #9d7570;
+    --text-current: #a0a89a;
+    --text-upcoming: #5c645a;
+    
+    --accent-primary: #7a8e6b;
+    --accent-secondary: #6a7a5a;
+    --accent-success: #6d9d60;
+    --accent-error: #a66a60;
+    --accent-warning: #9b8e6b;
+    
+    --card-bg: #1d1f1b;
+    --card-border: #353a30;
+    --input-bg: #181a16;
+    --input-border: #353a30;
+    --input-focus: #7a8e6b;
+}
+
+.theme-earthy-clay-terracotta {
+    --game-bg: #1f1612;
+    --game-bg-dark: #12100a;
+    --game-bg-light: #2a221e;
+    
+    --text-primary: #e8d5c8;
+    --text-secondary: #a88a78;
+    --text-correct: #9d8d6f;
+    --text-incorrect: #b0705a;
+    --text-current: #a89f92;
+    --text-upcoming: #6b5f50;
+    
+    --accent-primary: #b88a5e;
+    --accent-secondary: #a07050;
+    --accent-success: #9d8d6f;
+    --accent-error: #a65a48;
+    --accent-warning: #c8935f;
+    
+    --card-bg: #231d18;
+    --card-border: #3a2f25;
+    --input-bg: #1f1612;
+    --input-border: #3a2f25;
+    --input-focus: #b88a5e;
+}
 
 .theme-warm-amber-glow {
     --game-bg: #1f1a14;
@@ -212,10 +252,55 @@
     --input-focus: #c87d5e;
 }
 
-/* ========================================
-   COOL THEMES
-   Kühle, beruhigende Farben
-   ======================================== */
+.theme-warm-honey-gold {
+    --game-bg: #1f1a10;
+    --game-bg-dark: #121008;
+    --game-bg-light: #2a2418;
+    
+    --text-primary: #e8ddc0;
+    --text-secondary: #a89870;
+    --text-correct: #9d9d5e;
+    --text-incorrect: #b0755a;
+    --text-current: #a8a890;
+    --text-upcoming: #6b6348;
+    
+    --accent-primary: #d0a840;
+    --accent-secondary: #b89030;
+    --accent-success: #a09d5e;
+    --accent-error: #a66050;
+    --accent-warning: #d0b050;
+    
+    --card-bg: #231e18;
+    --card-border: #3a3020;
+    --input-bg: #1f1a10;
+    --input-border: #3a3020;
+    --input-focus: #d0a840;
+}
+
+.theme-warm-copper-flame {
+    --game-bg: #1f1510;
+    --game-bg-dark: #120d08;
+    --game-bg-light: #2a2018;
+    
+    --text-primary: #e8d0c0;
+    --text-secondary: #a88568;
+    --text-correct: #9d7d60;
+    --text-incorrect: #b06048;
+    --text-current: #a89888;
+    --text-upcoming: #6b5540;
+    
+    --accent-primary: #c87850;
+    --accent-secondary: #b06038;
+    --accent-success: #9d7560;
+    --accent-error: #b05038;
+    --accent-warning: #d08850;
+    
+    --card-bg: #231a15;
+    --card-border: #3a2a20;
+    --input-bg: #1f1510;
+    --input-border: #3a2a20;
+    --input-focus: #c87850;
+}
 
 .theme-cool-midnight-forest {
     --game-bg: #14181a;
@@ -292,10 +377,55 @@
     --input-focus: #5e8ea0;
 }
 
-/* ========================================
-   NEON THEMES
-   Leuchtende, lebendige Neonfarben
-   ======================================== */
+.theme-cool-arctic-blue {
+    --game-bg: #10161f;
+    --game-bg-dark: #080c12;
+    --game-bg-light: #1a202a;
+    
+    --text-primary: #d0e0f0;
+    --text-secondary: #8098a8;
+    --text-correct: #6090b0;
+    --text-incorrect: #9d7085;
+    --text-current: #90a8c0;
+    --text-upcoming: #4a5a6a;
+    
+    --accent-primary: #5090c8;
+    --accent-secondary: #4078b0;
+    --accent-success: #60a0c8;
+    --accent-error: #a66875;
+    --accent-warning: #7098b8;
+    
+    --card-bg: #151c28;
+    --card-border: #2a3548;
+    --input-bg: #10161f;
+    --input-border: #2a3548;
+    --input-focus: #5090c8;
+}
+
+.theme-cool-slate-fog {
+    --game-bg: #16181a;
+    --game-bg-dark: #0c0e10;
+    --game-bg-light: #222426;
+    
+    --text-primary: #d8dce0;
+    --text-secondary: #8890a0;
+    --text-correct: #7088a0;
+    --text-incorrect: #a07078;
+    --text-current: #98a0b0;
+    --text-upcoming: #585c68;
+    
+    --accent-primary: #7088a8;
+    --accent-secondary: #607090;
+    --accent-success: #6888a0;
+    --accent-error: #a06870;
+    --accent-warning: #8898a8;
+    
+    --card-bg: #1c1e22;
+    --card-border: #30343a;
+    --input-bg: #16181a;
+    --input-border: #30343a;
+    --input-focus: #7088a8;
+}
 
 .theme-neon-cyberpunk {
     --game-bg: #0a0a0f;
@@ -447,10 +577,55 @@
     --input-focus: #00ff00;
 }
 
-/* ========================================
-   PASTEL THEMES
-   Sanfte, pastellfarbene Themes
-   ======================================== */
+.theme-neon-hot-pink {
+    --game-bg: #140a14;
+    --game-bg-dark: #0a0510;
+    --game-bg-light: #1f152a;
+    
+    --text-primary: #ffe0ff;
+    --text-secondary: #a080a0;
+    --text-correct: #ff00dd;
+    --text-incorrect: #ff4400;
+    --text-current: #ff66ff;
+    --text-upcoming: #4a3a5a;
+    
+    --accent-primary: #ff00dd;
+    --accent-secondary: #dd00bb;
+    --accent-success: #ff44ee;
+    --accent-error: #ff3300;
+    --accent-warning: #ff88cc;
+    
+    --card-bg: #1a102a;
+    --card-border: #ff00dd;
+    --input-bg: #140a14;
+    --input-border: #443355;
+    --input-focus: #ff00dd;
+}
+
+.theme-neon-azure-shock {
+    --game-bg: #0a0f1a;
+    --game-bg-dark: #050810;
+    --game-bg-light: #15202f;
+    
+    --text-primary: #e0f0ff;
+    --text-secondary: #8098b0;
+    --text-correct: #00aaff;
+    --text-incorrect: #ff5500;
+    --text-current: #44ccff;
+    --text-upcoming: #3a4a6a;
+    
+    --accent-primary: #00aaff;
+    --accent-secondary: #0088dd;
+    --accent-success: #00ccff;
+    --accent-error: #ff4400;
+    --accent-warning: #00ddff;
+    
+    --card-bg: #0f1a30;
+    --card-border: #00aaff;
+    --input-bg: #0a0f1a;
+    --input-border: #334455;
+    --input-focus: #00aaff;
+}
 
 .theme-pastel-cotton-candy {
     --game-bg: #1a1520;
@@ -527,10 +702,80 @@
     --input-focus: #e8c8a8;
 }
 
-/* ========================================
-   MONOCHROME THEMES
-   Schwarz-Weiß und Grautöne
-   ======================================== */
+.theme-pastel-lavender-sky {
+    --game-bg: #181a20;
+    --game-bg-dark: #0d0f14;
+    --game-bg-light: #23252c;
+    
+    --text-primary: #e8e8ff;
+    --text-secondary: #a0a0c0;
+    --text-correct: #b0b0e8;
+    --text-incorrect: #d8a0b0;
+    --text-current: #c8c8f0;
+    --text-upcoming: #606078;
+    
+    --accent-primary: #b8b8f0;
+    --accent-secondary: #9898d8;
+    --accent-success: #a8a8e8;
+    --accent-error: #d890a8;
+    --accent-warning: #c8b8d8;
+    
+    --card-bg: #1d1f28;
+    --card-border: #353745;
+    --input-bg: #181a20;
+    --input-border: #353745;
+    --input-focus: #b8b8f0;
+}
+
+.theme-pastel-rose-garden {
+    --game-bg: #1a1618;
+    --game-bg-dark: #0f0c0e;
+    --game-bg-light: #252022;
+    
+    --text-primary: #ffe8f0;
+    --text-secondary: #b098a0;
+    --text-correct: #d8b0c8;
+    --text-incorrect: #d89090;
+    --text-current: #e0c0d0;
+    --text-upcoming: #6a5860;
+    
+    --accent-primary: #e8b0c8;
+    --accent-secondary: #d098b0;
+    --accent-success: #d8a8c0;
+    --accent-error: #d88090;
+    --accent-warning: #e8c0b8;
+    
+    --card-bg: #201a1e;
+    --card-border: #3a3038;
+    --input-bg: #1a1618;
+    --input-border: #3a3038;
+    --input-focus: #e8b0c8;
+}
+
+.theme-pastel-lemon-sorbet {
+    --game-bg: #1a1a15;
+    --game-bg-dark: #0f0f0a;
+    --game-bg-light: #252520;
+    
+    --text-primary: #ffffd8;
+    --text-secondary: #b0b088;
+    --text-correct: #d8d8a0;
+    --text-incorrect: #d8a088;
+    --text-current: #e8e8b0;
+    --text-upcoming: #6a6a50;
+    
+    --accent-primary: #e8e8a8;
+    --accent-secondary: #d0d090;
+    --accent-success: #d8d8a0;
+    --accent-error: #d89080;
+    --accent-warning: #f0f0a8;
+    
+    --card-bg: #201f1a;
+    --card-border: #38352f;
+    --input-bg: #1a1a15;
+    --input-border: #38352f;
+    --input-focus: #e8e8a8;
+}
 
 .theme-mono-pure-dark {
     --game-bg: #0a0a0a;
@@ -605,4 +850,229 @@
     --input-bg: #0f0f12;
     --input-border: #30303a;
     --input-focus: #d0d0e0;
+}
+
+.theme-mono-charcoal {
+    --game-bg: #121212;
+    --game-bg-dark: #080808;
+    --game-bg-light: #1c1c1c;
+    
+    --text-primary: #f0f0f0;
+    --text-secondary: #989898;
+    --text-correct: #c8c8c8;
+    --text-incorrect: #787878;
+    --text-current: #b8b8b8;
+    --text-upcoming: #585858;
+    
+    --accent-primary: #d8d8d8;
+    --accent-secondary: #b8b8b8;
+    --accent-success: #c8c8c8;
+    --accent-error: #888888;
+    --accent-warning: #a0a0a0;
+    
+    --card-bg: #181818;
+    --card-border: #353535;
+    --input-bg: #121212;
+    --input-border: #353535;
+    --input-focus: #d8d8d8;
+}
+
+.theme-mono-pearl {
+    --game-bg: #1c1c1e;
+    --game-bg-dark: #101012;
+    --game-bg-light: #28282a;
+    
+    --text-primary: #f8f8fa;
+    --text-secondary: #a8a8b0;
+    --text-correct: #d0d0d8;
+    --text-incorrect: #888890;
+    --text-current: #c0c0c8;
+    --text-upcoming: #686870;
+    
+    --accent-primary: #e0e0e8;
+    --accent-secondary: #c0c0c8;
+    --accent-success: #d0d0d8;
+    --accent-error: #989898;
+    --accent-warning: #b0b0b8;
+    
+    --card-bg: #22222a;
+    --card-border: #38383f;
+    --input-bg: #1c1c1e;
+    --input-border: #38383f;
+    --input-focus: #e0e0e8;
+}
+
+.theme-vibrant-tropical-sunset {
+    --game-bg: #1a1014;
+    --game-bg-dark: #0f080c;
+    --game-bg-light: #251820;
+    
+    --text-primary: #ffe0d0;
+    --text-secondary: #b08880;
+    --text-correct: #ff8860;
+    --text-incorrect: #ff4060;
+    --text-current: #ffa880;
+    --text-upcoming: #6a4850;
+    
+    --accent-primary: #ff6850;
+    --accent-secondary: #ff4830;
+    --accent-success: #ff8860;
+    --accent-error: #ff2040;
+    --accent-warning: #ffa040;
+    
+    --card-bg: #201518;
+    --card-border: #3a2830;
+    --input-bg: #1a1014;
+    --input-border: #3a2830;
+    --input-focus: #ff6850;
+}
+
+.theme-vibrant-emerald-forest {
+    --game-bg: #0f1a10;
+    --game-bg-dark: #081008;
+    --game-bg-light: #182518;
+    
+    --text-primary: #d0ffe0;
+    --text-secondary: #80b088;
+    --text-correct: #40d860;
+    --text-incorrect: #d84040;
+    --text-current: #60e880;
+    --text-upcoming: #486850;
+    
+    --accent-primary: #20c840;
+    --accent-secondary: #10b030;
+    --accent-success: #30d850;
+    --accent-error: #c83030;
+    --accent-warning: #e8c840;
+    
+    --card-bg: #141f18;
+    --card-border: #283a30;
+    --input-bg: #0f1a10;
+    --input-border: #283a30;
+    --input-focus: #20c840;
+}
+
+.theme-vibrant-royal-purple {
+    --game-bg: #14101a;
+    --game-bg-dark: #0a0810;
+    --game-bg-light: #201825;
+    
+    --text-primary: #e8d0ff;
+    --text-secondary: #a080b0;
+    --text-correct: #a060d8;
+    --text-incorrect: #d84080;
+    --text-current: #b880e8;
+    --text-upcoming: #584868;
+    
+    --accent-primary: #8840d0;
+    --accent-secondary: #7030b8;
+    --accent-success: #9850d8;
+    --accent-error: #c83070;
+    --accent-warning: #b860c8;
+    
+    --card-bg: #18142a;
+    --card-border: #302840;
+    --input-bg: #14101a;
+    --input-border: #302840;
+    --input-focus: #8840d0;
+}
+
+.theme-vibrant-sapphire-ocean {
+    --game-bg: #0a1014;
+    --game-bg-dark: #050810;
+    --game-bg-light: #151c20;
+    
+    --text-primary: #d0e8ff;
+    --text-secondary: #80a0b8;
+    --text-correct: #4090d8;
+    --text-incorrect: #d84060;
+    --text-current: #60a8f0;
+    --text-upcoming: #405060;
+    
+    --accent-primary: #2080d0;
+    --accent-secondary: #1068b8;
+    --accent-success: #3090e0;
+    --accent-error: #c83050;
+    --accent-warning: #60b0e8;
+    
+    --card-bg: #0f1820;
+    --card-border: #1f3040;
+    --input-bg: #0a1014;
+    --input-border: #1f3040;
+    --input-focus: #2080d0;
+}
+
+.theme-muted-sage {
+    --game-bg: #181a18;
+    --game-bg-dark: #0e100e;
+    --game-bg-light: #232523;
+    
+    --text-primary: #d8ded8;
+    --text-secondary: #8a9088;
+    --text-correct: #7a9875;
+    --text-incorrect: #987570;
+    --text-current: #9aa89a;
+    --text-upcoming: #5c645c;
+    
+    --accent-primary: #6a8865;
+    --accent-secondary: #5a7555;
+    --accent-success: #708870;
+    --accent-error: #906860;
+    --accent-warning: #889075;
+    
+    --card-bg: #1d1f1d;
+    --card-border: #303530;
+    --input-bg: #181a18;
+    --input-border: #303530;
+    --input-focus: #6a8865;
+}
+
+.theme-muted-dusty-rose {
+    --game-bg: #1a1618;
+    --game-bg-dark: #100c0e;
+    --game-bg-light: #252022;
+    
+    --text-primary: #e0d8dc;
+    --text-secondary: #908890;
+    --text-correct: #987888;
+    --text-incorrect: #986860;
+    --text-current: #a89898;
+    --text-upcoming: #645c60;
+    
+    --accent-primary: #886870;
+    --accent-secondary: #755860;
+    --accent-success: #907880;
+    --accent-error: #905850;
+    --accent-warning: #987870;
+    
+    --card-bg: #1f1a1e;
+    --card-border: #352f33;
+    --input-bg: #1a1618;
+    --input-border: #352f33;
+    --input-focus: #886870;
+}
+
+.theme-muted-storm-gray {
+    --game-bg: #16181a;
+    --game-bg-dark: #0c0e10;
+    --game-bg-light: #222426;
+    
+    --text-primary: #dcdee0;
+    --text-secondary: #888a90;
+    --text-correct: #7886a0;
+    --text-incorrect: #987075;
+    --text-current: #98a0a8;
+    --text-upcoming: #5c5e64;
+    
+    --accent-primary: #6878a0;
+    --accent-secondary: #586888;
+    --accent-success: #708090;
+    --accent-error: #886068;
+    --accent-warning: #808898;
+    
+    --card-bg: #1c1e22;
+    --card-border: #303438;
+    --input-bg: #16181a;
+    --input-border: #303438;
+    --input-focus: #6878a0;
 }

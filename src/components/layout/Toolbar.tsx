@@ -11,6 +11,7 @@ import { GetAllThemes } from "../../utils/tools";
 import { setLocalItem, getLocalItem } from "../../storage/localStorage";
 import { reload } from "../game/Reload";
 import { useGameStore } from "../../state";
+import Tooltip from "../ui/Tooltip";
 
 export default function Toolbar(){
     const { bumpTextVersion } = useGameStore();
@@ -76,10 +77,12 @@ export default function Toolbar(){
                 <Button index={2} text="60's" onClickFunction={() => UpdateTimeData(60)} tooltip="Set a timer too 60 seconds."/>, 
                 <Button index={3} text="∞" onClickFunction={() => UpdateTimeData(-1)} tooltip="Set a timer that runs until u finished typing."/> ]}defaultSelect={3}/>]}/>
 
-                <OptionsButton text="⏹" tooltip="Theme" itemsPerRow={themes !== undefined ? Math.floor(themes.length / 2) : 10}
+                <OptionsButton text="⏹" tooltip="Theme" itemsPerRow={15}
                 optionsValue={[
                     <ButtonSelection children={themes !== undefined ? themes.map((theme, index) => (
-                        <Button key={index} text="" className={` h-10 ${theme} text-accent-primary`} onClickFunction={() => handleThemeBtn(theme, `${index}`)}/>
+                        <Tooltip content={theme}>
+                            <Button key={index} text="" className={` h-10 ${theme} text-accent-primary`} onClickFunction={() => handleThemeBtn(theme, `${index}`)}/>
+                        </Tooltip>
                     ))
                     :
                     [<Button/>, <Button/>]

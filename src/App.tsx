@@ -31,6 +31,14 @@ function App() {
     if (getLocalItem("logged in") === null){
       setLocalItem("logged in", "false");
     }
+    const theme = getLocalItem("theme") || "theme-earthy-earth";
+    const applyThemeClass = (el: HTMLElement) => {
+      for (const cls of Array.from(el.classList)) {
+        if (cls.startsWith("theme-")) el.classList.remove(cls);
+      }
+      el.classList.add(theme);
+    };
+    applyThemeClass(document.documentElement);
   }, [bumpTextVersion]);
 
   const handleClick = () => {
@@ -166,10 +174,13 @@ function App() {
     </div>
   )
 
+  const themeClass = getLocalItem("theme") || "theme-earthy-earth";
+
   return (
-    <div className={`${getLocalItem("theme")}`}>
+    <div className={`${themeClass}`}>
       <div className="w-screen h-screen bg-game-bg overflow-hidden">
         <div className="w-full h-full flex flex-wrap items-center justify-center">
+          <div id="portal-root" className={`${themeClass}`} />
           {showResults ? 
             <div className="w-full h-full flex flex-row">
               <div className="absolute w-fit h-fit flex items-start p-5">

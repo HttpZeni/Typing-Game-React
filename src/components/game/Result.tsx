@@ -25,10 +25,13 @@ export function Results() {
                 
                 <div className="flex-1 p-10">
                     <Graph
-                        data={game.LineGraphDataSet.map((p) => ({ x: p.Seconds, y: p.WPM }))}
-                        lineLabel="WPM"
+                        data={game.LineGraphDataSet}
+                        xKey="Seconds"
+                        series={[{ key: "WPM", label: "WPM", fill: true }]}
                         xTitle="TIME (SECONDS)"
                         yTitle="WORDS PER MINUTE"
+                        tooltipValueSuffix="WPM"
+                        className="border-none shadow-none"
                     />
                 </div>
             </div>

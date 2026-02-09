@@ -84,12 +84,12 @@ export function CalculateBestWPM(ListOfGames: Round[] | undefined): number[] | u
     if (ListOfGames === undefined) return undefined;
     const wpmTimeArr = [];
     for (const game of ListOfGames){
-        wpmTimeArr.push([game.wpm, game.time]);     
+        wpmTimeArr.push([game.wpm, game.time, game.errorLetters.length]);     
     }
     let bestTry = 0;
     let bestTryWpmTime = [0, 0];
     for (const round of wpmTimeArr){
-        const average = round[0] / round[1];
+        const average = (round[0] / round[1]) - round[2];
         if (average > bestTry){
             bestTry = average
             bestTryWpmTime = round;
@@ -121,7 +121,7 @@ export function CalculateErrorHotspots(ListOfGames: Round[] | undefined): Record
   return { [bestKey]: bestVal };
 }
 
-export function CalculateStreak(ListOfGames: Round[] | undefined): number | undefined{
-    if (ListOfGames === undefined) return undefined;
+export function CalculateStreak(ListOfGames: Round[] | undefined): number{
+    if (ListOfGames === undefined) return 0;
     return ListOfGames.length + 1;
 }

@@ -1,15 +1,15 @@
 import { useMemo } from "react";
 import { Line } from "react-chartjs-2";
-import { 
-  Chart as ChartJS, 
-  CategoryScale, 
-  LinearScale, 
-  PointElement, 
-  LineElement, 
-  Title, 
-  Tooltip, 
-  Legend, 
-  Filler 
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip,
+  Legend,
+  Filler
 } from "chart.js";
 import type { ChartOptions } from "chart.js";
 
@@ -28,9 +28,7 @@ const getCssVar = (name: string): string => {
   if (typeof window === "undefined") return "";
   const themeRoot =
     document.querySelector("[class*='theme-']") ?? document.documentElement;
-  return getComputedStyle(themeRoot)
-    .getPropertyValue(name)
-    .trim();
+  return getComputedStyle(themeRoot).getPropertyValue(name).trim();
 };
 
 const hexToRgba = (hex: string, alpha: number): string => {
@@ -38,41 +36,57 @@ const hexToRgba = (hex: string, alpha: number): string => {
   const full = normalized.length === 3
     ? normalized.split("").map((ch) => ch + ch).join("")
     : normalized;
-  
-  if (!/^[0-9a-fA-F]{6}$/.test(full)) return `rgba(200, 155, 94, ${alpha})`; // fallback
-  
+
+  if (!/^[0-9a-fA-F]{6}$/.test(full)) return `rgba(200, 155, 94, ${alpha})`;
+
   const r = parseInt(full.slice(0, 2), 16);
   const g = parseInt(full.slice(2, 4), 16);
   const b = parseInt(full.slice(4, 6), 16);
-  
+
   return `rgba(${r}, ${g}, ${b}, ${alpha})`;
 };
 
-type GraphPoint = {
-  x: number;
-  y: number;
+type GraphNumericKey<T> = {
+  [K in keyof T]: T[K] extends number | string ? K : never
+}[keyof T];
+
+export type GraphSeries<T> = {
+  key: GraphNumericKey<T>;
+  label?: string;
+  color?: string;
+  fill?: boolean;
+  tension?: number;
 };
 
-type GraphProps = {
-  data: GraphPoint[];
+export type GraphXKey<T> = GraphNumericKey<T> | ((row: T, index: number) => number);
+
+export type GraphProps<T> = {
+  data: T[];
+  xKey: GraphXKey<T>;
+  series: GraphSeries<T>[];
+  xTitle?: string;
+  yTitle?: string;
   className?: string;
   height?: number | string;
   width?: number | string;
-  lineLabel?: string;
-  xTitle?: string;
-  yTitle?: string;
+  showLegend?: boolean;
+  yBeginAtZero?: boolean;
+  tooltipValueSuffix?: string;
 };
 
-export const Graph = ({
+export function Graph<T extends Record<string, unknown>>({
   data,
+  xKey,
+  series,
+  xTitle = "X",
+  yTitle = "Y",
   className,
   height,
   width,
-  lineLabel = "WPM",
-  xTitle = "TIME (SECONDS)",
-  yTitle = "WORDS PER MINUTE",
-}: GraphProps) => {
-  // Dynamische Farben aus Tailwind Config
+  showLegend = false,
+  yBeginAtZero = true,
+  tooltipValueSuffix = "",
+}: GraphProps<T>) {
   const colors = useMemo(() => {
     const accentPrimary = getCssVar("--accent-primary") || "#c89b5e";
     const accentSecondary = getCssVar("--accent-secondary") || "#8b7355";
@@ -99,9 +113,7 @@ export const Graph = ({
     responsive: true,
     maintainAspectRatio: false,
     plugins: {
-      legend: { 
-        display: false 
-      },
+      legend: { display: showLegend },
       tooltip: {
         enabled: true,
         backgroundColor: colors.tooltipBg,
@@ -110,12 +122,12 @@ export const Graph = ({
         borderColor: colors.tooltipBorder,
         borderWidth: 2,
         padding: 14,
-        titleFont: { 
-          size: 15, 
+        titleFont: {
+          size: 15,
           weight: "bold",
           family: "'JetBrains Mono', monospace"
         },
-        bodyFont: { 
+        bodyFont: {
           size: 14,
           family: "'JetBrains Mono', monospace"
         },
@@ -123,11 +135,12 @@ export const Graph = ({
         callbacks: {
           title: (items) => {
             const x = items[0]?.parsed?.x;
-            return x == null ? "" : `${x}s`;
+            return x == null ? "" : `${x}`;
           },
           label: (item) => {
             const y = item.parsed.y;
-            return `${Math.round(y ?? 0)} WPM`;
+            const suffix = tooltipValueSuffix ? ` ${tooltipValueSuffix}` : "";
+            return `${Math.round(y ?? 0)}${suffix}`;
           },
         },
       }
@@ -135,17 +148,15 @@ export const Graph = ({
     scales: {
       x: {
         type: "linear",
-        grid: { 
+        grid: {
           display: true,
           color: colors.grid,
           lineWidth: 1.5,
         },
-        border: { 
-          display: false 
-        },
+        border: { display: false },
         ticks: {
           color: colors.axis,
-          font: { 
+          font: {
             size: 12,
             family: "'JetBrains Mono', monospace",
             weight: 500
@@ -157,8 +168,8 @@ export const Graph = ({
           display: true,
           text: xTitle,
           color: colors.axisTitle,
-          font: { 
-            size: 13, 
+          font: {
+            size: 13,
             weight: "bold",
             family: "'JetBrains Mono', monospace"
           },
@@ -166,18 +177,16 @@ export const Graph = ({
         }
       },
       y: {
-        beginAtZero: true,
-        grid: { 
+        beginAtZero: yBeginAtZero,
+        grid: {
           display: true,
           color: colors.grid,
           lineWidth: 1.5,
         },
-        border: { 
-          display: false 
-        },
+        border: { display: false },
         ticks: {
           color: colors.axis,
-          font: { 
+          font: {
             size: 12,
             family: "'JetBrains Mono', monospace",
             weight: 500
@@ -189,8 +198,8 @@ export const Graph = ({
           display: true,
           text: yTitle,
           color: colors.axisTitle,
-          font: { 
-            size: 13, 
+          font: {
+            size: 13,
             weight: "bold",
             family: "'JetBrains Mono', monospace"
           },
@@ -206,32 +215,45 @@ export const Graph = ({
       duration: 750,
       easing: "easeInOutQuart",
     }
-  }), [colors, xTitle, yTitle]);
+  }), [colors, showLegend, tooltipValueSuffix, xTitle, yBeginAtZero, yTitle]);
 
-  const chartData = useMemo(() => ({
-    datasets: [
-      {
-        label: lineLabel,
-        data,
-        borderColor: colors.line,
-        backgroundColor: colors.fill,
+  const chartData = useMemo(() => {
+    const safeSeries = series ?? [];
+    const getX = (row: T, index: number) => {
+      if (typeof xKey === "function") return xKey(row, index);
+      return Number(row[xKey]) || 0;
+    };
+
+    const datasets = safeSeries.map((s) => {
+      const color = s.color ?? colors.line;
+      const fill = s.fill ?? false;
+      return {
+        label: s.label ?? String(s.key),
+        data: data.map((row, index) => ({
+          x: getX(row, index),
+          y: Number(row[s.key]) || 0,
+        })),
+        borderColor: color,
+        backgroundColor: fill ? hexToRgba(color, 0.18) : "transparent",
         pointRadius: 5,
         pointHoverRadius: 9,
-        pointBackgroundColor: colors.point,
+        pointBackgroundColor: color,
         pointBorderColor: colors.tooltipBg,
         pointBorderWidth: 2.5,
-        pointHoverBackgroundColor: colors.pointHover,
-        pointHoverBorderColor: colors.line,
+        pointHoverBackgroundColor: colors.lineHover,
+        pointHoverBorderColor: color,
         pointHoverBorderWidth: 3,
-        tension: 0.4,
-        fill: true,
+        tension: s.tension ?? 0.4,
+        fill,
         borderWidth: 3,
         segment: {
-          borderColor: colors.line
+          borderColor: color
         }
-      },
-    ],
-  }), [data, colors, lineLabel]);
+      };
+    });
+
+    return { datasets };
+  }, [data, series, xKey, colors]);
 
   return (
     <div
@@ -246,4 +268,4 @@ export const Graph = ({
       <Line options={options} data={chartData} />
     </div>
   );
-};
+}

@@ -1,10 +1,9 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Window from "../layout/Window";
 import Button from "../ui/Button";
 import OptionsButton from "../game/OptionsButton";
 import Input from "../ui/Input";
 import { Graph } from "../game/Graph";
-import { FetchGameData, type Game } from "../../services/fetchData";
 import DropDown from "../ui/DropDown";
 import { logOut } from "../../services/supabaseData";
 import { changeUsername, getUsername, getUserSettings, changeProfilePicture } from "../../services/supabaseData";
@@ -13,17 +12,19 @@ import { reloadWindowOpen } from "../game/Reload";
 import FileUploader from "./FileUploader";
 import { useGameStore } from "../../state";
 import { CalculateAverageAcc, CalculateAverageWPM, CalculateBestWPM, CalculateErrorHotspots, CalculateStreak } from "../../utils/tools";
+import Tooltip from "../ui/Tooltip";
+import MatchHistory from "./MatchHistory";
 
 export default function Profile(){
     const [open, setOpen] = useState<boolean>(false);
     const [showSettingsWindow, setShowSettingsWindow] = useState<boolean>(false);
     const [changeCurrentUsername, setChangeCurrentUsername] = useState<boolean>(false);
     const [newUsername, setNewUsername] = useState<string>("");
-    const game = useRef<Game>(FetchGameData(0));
     const [username, setUsername] = useState<string>("");
     const [profilePicture, setProfilePicture] = useState<string | null>(null);
     const [file, setFile] = useState<File | null>(null);
     const { stats, loadStats } = useGameStore();
+    const [currentGraph, setCurrentGraph] = useState<string>("WpmGraph");
 
     const userStats = useMemo(() => {
         const rounds = stats?.rounds ?? [];
@@ -31,11 +32,12 @@ export default function Profile(){
         return {
             "Average Acc": CalculateAverageAcc(rounds),
             "Average WPM": CalculateAverageWPM(rounds),
-            "Bet WPM": CalculateBestWPM(rounds)?.[0] ?? 0,
+            "Best WPM": CalculateBestWPM(rounds)?.[0] ?? 0,
+            "Best Time": CalculateBestWPM(rounds)?.[1] ?? 0,
             "Error Hotspots": Object.keys(hotspot ?? {})[0] ?? "",
-            "Streaks": CalculateStreak(rounds)
+            "Streaks": CalculateStreak(rounds) - 1
         };
-    }, [open, stats]);
+    }, [stats]);
 
     useEffect(() => {
         let alive = true;
@@ -93,11 +95,74 @@ export default function Profile(){
         reloadWindowOpen();
     }
 
+    const rounds = (stats?.rounds ?? []).map((r) => ({ ...r, errorCount: r.errorLetters.length }));
+
+    const WpmGraph = (
+        <Graph
+            data={rounds}
+            xKey={(_, i) => i + 1}
+            series={[{ key: "wpm", label: "WPM", fill: true }]}
+            xTitle="Rounds"
+            yTitle="WPM"
+            height="95%"
+            width="100%"
+            tooltipValueSuffix="WPM"
+            className="border-none shadow-none"
+        />
+    );
+
+    const AccGraph = (
+        <Graph
+            data={rounds}
+            xKey={(_, i) => i + 1}
+            series={[{ key: "accuracy", label: "Accuracy", fill: true }]}
+            xTitle="Rounds"
+            yTitle="Accuracy"
+            height="95%"
+            width="100%"
+            tooltipValueSuffix="%"
+            className="border-none shadow-none"
+        />
+    );
+
+    const TimeGraph = (
+        <Graph
+            data={rounds}
+            xKey={(_, i) => i + 1}
+            series={[{ key: "time", label: "Time", fill: true }]}
+            xTitle="Rounds"
+            yTitle="Time"
+            height="95%"
+            width="100%"
+            tooltipValueSuffix="'s'"
+            className="border-none shadow-none"
+        />
+    );
+
+    const ErrorLettersGraph = (
+        <Graph
+            data={rounds}
+            xKey={(_, i) => i + 1}
+            series={[{ key: `errorCount`, label: "ErrorLetters", fill: true }]}
+            xTitle="Rounds"
+            yTitle="Errors"
+            height="95%"
+            width="100%"
+            tooltipValueSuffix="Error's"
+            className="border-none shadow-none"
+        />
+    );
+
+    const handleGraphDropDown = (graph: string) => {
+        setCurrentGraph(graph);
+        console.log(currentGraph)
+    }
+
     const windowValue = (
         <div className="flex flex-row gap-x-10 h-full"> 
             <div className="w-1/4 flex flex-col gap-5">
                 <div className="flex flex-col gap-2">
-                    <div className="w-full aspect-square">
+                    <div className="w-full aspect-square relative overflow-visible">
                         <div className="absolute z-50 -m-5">
                             <OptionsButton tooltip="Settings" onClickFunction={() => setShowSettingsWindow(!showSettingsWindow)} text="⚙︎" optionsValue={[
                                 <Button text="Log Out" onClickFunction={handleLogOutBtn}/>
@@ -130,27 +195,39 @@ export default function Profile(){
                     
                     <ul className="list-none pl-0 space-y-2 text-lg text-text-primary font-mono font-extrabold">
                         <li className="flex items-center justify-between">
-                            <span>Average Accuracy</span>
-                            <span>{userStats["Average Acc"] !== undefined ? Math.round(userStats["Average Acc"] * 100) / 100 : 0}</span>
+                            <Tooltip content="The average accuracy this player has.">
+                                <span className="cursor-default">Average Accuracy</span>
+                            </Tooltip>
+                            <span>{userStats["Average Acc"] !== undefined ? Math.round(userStats["Average Acc"] * 100) / 100 : 0}%</span>
                         </li>
                         <div className="h-px w-full bg-white/80"/>
                         <li className="flex items-center justify-between">
-                            <span>Average WPM</span>
+                            <Tooltip content="The average words per minute this player has.">
+                                <span className="cursor-default">Average WPM</span>
+                            </Tooltip>
                             <span>{userStats["Average WPM"] !== undefined ? Math.round(userStats["Average WPM"] * 100) / 100 : 0}</span>
                         </li>
                         <div className="h-px w-full bg-white/80"/>
                         <li className="flex items-center justify-between">
-                            <span>Best WPM</span>
-                            <span>{userStats["Bet WPM"]}</span>
+                            <Tooltip content="The best WPM this player had.">
+                                <span className="cursor-default">Best WPM</span>
+                            </Tooltip>
+                            <Tooltip content={`This player got ${userStats["Best WPM"]} WPM in ${userStats["Best Time"]} seconds!`}>
+                                <span>{userStats["Best WPM"]}</span>
+                            </Tooltip>
                         </li>
                         <div className="h-px w-full bg-white/80"/>
                         <li className="flex items-center justify-between">
-                            <span>Error Hotspots</span>
+                            <Tooltip content="The letter the player misstypes the most.">
+                                <span className="cursor-default">Error Hotspots</span>
+                            </Tooltip>
                             <span>{userStats["Error Hotspots"]}</span>
                         </li>
                         <div className="h-px w-full bg-white/80"/>
                         <li className="flex items-center justify-between">
-                            <span>Streak</span>
+                            <Tooltip content="How many plays this payer has.">
+                                <span className="cursor-default">Streak</span>
+                            </Tooltip>
                             <span>{userStats["Streaks"]}</span>
                         </li>
                     </ul>
@@ -159,21 +236,18 @@ export default function Profile(){
 
             <div className="w-3/4 flex flex-col gap-5 min-h-0">
                 <div className="flex-[3] flex flex-row gap-x-5 min-h-0">
-                    <div className="w-4/6 h-full bg-game-bg-light rounded-md p-5">
-                        <DropDown options={["1", "2", "3", "4", "5"]}/>
-                        <Graph
-                            data={game.current.LineGraphDataSet.map((p) => ({ x: p.Seconds, y: p.WPM }))}
-                            lineLabel="WPM"
-                            xTitle="TIME (SECONDS)"
-                            yTitle="WORDS PER MINUTE"
-                            className="border-none w-full h-[95%] shadow-none"/>
-                    </div>
-                    <div className="w-2/6 h-full bg-game-bg-light rounded-md">
-
+                    <div className="w-full h-full bg-game-bg-light rounded-md p-5 pl-0">
+                        <div className="w-fit h-fit flex items-center justify-center ml-5">
+                            <DropDown options={["WpmGraph" ,"AccGraph", "TimeGraph", "ErrorLettersGraph"]} onChange={(value) => handleGraphDropDown(value)}/>
+                        </div>
+                            {currentGraph === "WpmGraph" && WpmGraph}
+                            {currentGraph === "AccGraph" && AccGraph}
+                            {currentGraph === "TimeGraph" && TimeGraph}
+                            {currentGraph === "ErrorLettersGraph" && ErrorLettersGraph}
                     </div>
                 </div>
                 <div className="flex-[2] bg-game-bg-light rounded-md min-h-0">
-
+                    <MatchHistory rounds={stats?.rounds ?? []}/>
                 </div>
             </div>
         </div>
@@ -186,7 +260,7 @@ export default function Profile(){
                 <img src={profilePicture == null ? "https://i.pinimg.com/736x/8c/8f/aa/8c8faaee152db00384e06d3365cae0b9.jpg" : profilePicture} alt="Profile pic" className="rounded-full" />
             </button>
 
-            <Window open={open} value={windowValue} width={60} height={70} className="motion-preset-blur-up-lg"/>
+            <Window open={open} value={windowValue} width={65} height={70} className="motion-preset-blur-up-lg"/>
         </>
     )
 }
