@@ -62,6 +62,8 @@ export default function TextArea() {
         }
     }, [flatText.length]);
 
+    useEffect(() => {}, [setTextState]);
+
     const resetGame = useCallback(
         (nextText?: string) => {
             const resetText = nextText ?? textRef.current;

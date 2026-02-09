@@ -67,10 +67,6 @@ export function GameStoreProvider({ children }: { children: ReactNode }) {
     } finally {
       if (!cancelled) setLoadingStats(false);
     }
-
-    return () => {
-      cancelled = true;
-    };
   }, []);
 
   useEffect(() => {

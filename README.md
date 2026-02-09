@@ -9,12 +9,15 @@ A simple typing game built with React and TypeScript to help you practice your t
 - Auto-scroll to keep the active character in view
 - Results screen showing WPM, accuracy, errors, time, and a WPM line chart
 - Keyboard-first flow, with `Esc` to reset anytime
+- Theme switcher with multiple visual presets
+- Optional profile view with stats and account settings (Supabase)
 
 ## Tech Stack
 - React 19 + TypeScript
 - Vite
 - Tailwind CSS
 - Chart.js + react-chartjs-2
+- Supabase (auth + stats storage)
 
 ## Getting Started
 
@@ -45,6 +48,14 @@ npm run preview
 ```
 This will start a server that serves your production build.
 
+## Environment Setup
+If you want login/profile + stats syncing, configure Supabase in `.env`:
+```
+VITE_SUPABASE_URL=
+VITE_SUPABASE_ANON_KEY=
+```
+Without these variables, the game still runs, but profile/stat sync features are unavailable.
+
 ## How to Play
 - Click the typing area to focus (it auto-focuses when the page loads).
 - Start typing to begin the game.
@@ -55,10 +66,16 @@ This will start a server that serves your production build.
 ## Customizing Texts
 You can customize the text samples used in the game by editing the `src/data/texts.json` file. Each text entry contains a title and three variants: short, medium, and long. You can add new texts or modify existing ones here.
 
+## State Management
+Shared game state (e.g., `game`, `showResults`, `stats`) lives in a lightweight React Context store under `src/state`. Components can access it via `useGameStore()`.
+
 ## Project Structure
 - `src/components`: Contains all the UI components like typing area, toolbar, results, and chart.
-- `src/tools`: Contains game logic and helper functions to manage text, timer, and results.
-- `src/data`: Holds text content and the initial game data like timer modes and text lengths.
+- `src/state`: Global game store (React Context).
+- `src/utils`: Game logic and helper functions to manage text, timer, and results.
+- `src/services`: Data access, Supabase helpers, and text selection.
+- `src/storage`: LocalStorage helpers.
+- `src/data`: Text content and initial game data like timer modes and text lengths.
 
 ## Scripts
 - `npm run dev`: Starts the Vite development server.
