@@ -11,7 +11,7 @@ import {
   Legend,
   Filler
 } from "chart.js";
-import type { ChartOptions } from "chart.js";
+import type { ChartData, ChartOptions } from "chart.js";
 
 ChartJS.register(
   CategoryScale,
@@ -58,7 +58,7 @@ export type GraphSeries<T> = {
   tension?: number;
 };
 
-export type GraphXKey<T> = GraphNumericKey<T> | ((row: T, index: number) => number);
+export type GraphXKey<T> = GraphNumericKey<T> | ((row: T, index: number) => number | string);
 
 export type GraphProps<T> = {
   data: T[];
@@ -109,6 +109,18 @@ export function Graph<T extends Record<string, unknown>>({
     };
   }, []);
 
+  const xMeta = useMemo(() => {
+    const values = data.map((row, index) => {
+      if (typeof xKey === "function") return xKey(row, index);
+      return row[xKey] as unknown;
+    });
+    const isCategorical = values.some((value) => typeof value === "string");
+    return {
+      values: values.map((value) => (value == null ? "" : value)),
+      isCategorical,
+    };
+  }, [data, xKey]);
+
   const options: ChartOptions<"line"> = useMemo(() => ({
     responsive: true,
     maintainAspectRatio: false,
@@ -147,7 +159,7 @@ export function Graph<T extends Record<string, unknown>>({
     },
     scales: {
       x: {
-        type: "linear",
+        type: xMeta.isCategorical ? "category" : "linear",
         grid: {
           display: true,
           color: colors.grid,
@@ -215,24 +227,16 @@ export function Graph<T extends Record<string, unknown>>({
       duration: 750,
       easing: "easeInOutQuart",
     }
-  }), [colors, showLegend, tooltipValueSuffix, xTitle, yBeginAtZero, yTitle]);
+  }), [colors, showLegend, tooltipValueSuffix, xTitle, yBeginAtZero, yTitle, xMeta.isCategorical]);
 
-  const chartData = useMemo(() => {
+  const chartData: ChartData<"line", (number | { x: number; y: number })[], string> = useMemo(() => {
     const safeSeries = series ?? [];
-    const getX = (row: T, index: number) => {
-      if (typeof xKey === "function") return xKey(row, index);
-      return Number(row[xKey]) || 0;
-    };
 
     const datasets = safeSeries.map((s) => {
       const color = s.color ?? colors.line;
       const fill = s.fill ?? false;
-      return {
+      const base = {
         label: s.label ?? String(s.key),
-        data: data.map((row, index) => ({
-          x: getX(row, index),
-          y: Number(row[s.key]) || 0,
-        })),
         borderColor: color,
         backgroundColor: fill ? hexToRgba(color, 0.18) : "transparent",
         pointRadius: 5,
@@ -250,10 +254,29 @@ export function Graph<T extends Record<string, unknown>>({
           borderColor: color
         }
       };
+
+      if (xMeta.isCategorical) {
+        return {
+          ...base,
+          data: data.map((row) => Number(row[s.key]) || 0),
+        };
+      }
+
+      return {
+        ...base,
+        data: data.map((row, index) => ({
+          x: Number(xMeta.values[index]) || 0,
+          y: Number(row[s.key]) || 0,
+        })),
+      };
     });
 
+    if (xMeta.isCategorical) {
+      return { labels: xMeta.values.map((v) => String(v)), datasets };
+    }
+
     return { datasets };
-  }, [data, series, xKey, colors]);
+  }, [data, series, colors, xMeta]);
 
   return (
     <div

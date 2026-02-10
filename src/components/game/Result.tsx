@@ -7,7 +7,7 @@ export function Results() {
     const lastRound = stats?.rounds?.length ? stats.rounds[stats.rounds.length - 1] : null;
     const wpm = lastRound?.wpm ?? game.WPM;
     const accuracy = lastRound?.accuracy ?? game.Accurancy;
-    const errors = lastRound?.errorLetters?.length ?? game.Errors;
+    const errors = game.Errors ?? lastRound?.errorLetters?.length ?? 0;
     const time = lastRound?.time ?? game.Seconds;
 
     return (

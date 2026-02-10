@@ -80,26 +80,31 @@ export function CalculateAverageWPM(ListOfGames: Round[] | undefined): number | 
     return average(wpmArr);
 }
 
-export function CalculateBestWPM(ListOfGames: Round[] | undefined): number[] | undefined{
-    if (ListOfGames === undefined) return undefined;
-    const wpmTimeArr = [];
-    for (const game of ListOfGames){
-        wpmTimeArr.push([game.wpm, game.time, game.errorLetters.length]);     
+export function CalculateBestWPM(ListOfGames: Round[] | undefined): number[] | undefined {
+  if (!ListOfGames || ListOfGames.length === 0) return undefined;
+
+  let bestScore = -Infinity;
+  let best: [number, number, number] = [0, 0, 0];
+
+  for (const game of ListOfGames) {
+    const errorPenalty = game.errorLetters.length * 0.5;
+    const textLen = game.text?.length ?? 0;
+    if (textLen > 0 && errorPenalty >= (textLen / 6)) continue;
+    const score = game.wpm - errorPenalty;
+
+    if (score > bestScore) {
+      bestScore = score;
+      best = [game.wpm, game.time, errorPenalty];
     }
-    let bestTry = 0;
-    let bestTryWpmTime = [0, 0];
-    for (const round of wpmTimeArr){
-        const average = (round[0] / round[1]) - round[2];
-        if (average > bestTry){
-            bestTry = average
-            bestTryWpmTime = round;
-        }
-    }
-    return bestTryWpmTime;
+  }
+
+  return best;
 }
 
 export function CalculateErrorHotspots(ListOfGames: Round[] | undefined): Record<string, number> | undefined {
   if (!ListOfGames || ListOfGames.length === 0) return undefined;
+
+  let found = false;
 
   const map: Record<string, number> = {};
   for (const round of ListOfGames) {
@@ -115,13 +120,18 @@ export function CalculateErrorHotspots(ListOfGames: Round[] | undefined): Record
     if (val > bestVal) {
       bestVal = val;
       bestKey = key;
+      found = true;
     }
   }
 
-  return { [bestKey]: bestVal };
+  return found ? {[bestKey]: bestVal} : undefined;
 }
 
 export function CalculateStreak(ListOfGames: Round[] | undefined): number{
     if (ListOfGames === undefined) return 0;
     return ListOfGames.length + 1;
+}
+
+export function SortRoundsArrayByCreated(Rounds: Round[]): Array<Round>{
+    return Rounds.sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime())
 }

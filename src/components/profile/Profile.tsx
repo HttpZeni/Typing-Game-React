@@ -11,23 +11,23 @@ import { getLocalItem, removeLocalItem } from "../../storage/localStorage";
 import { reloadWindowOpen } from "../game/Reload";
 import FileUploader from "./FileUploader";
 import { useGameStore } from "../../state";
-import { CalculateAverageAcc, CalculateAverageWPM, CalculateBestWPM, CalculateErrorHotspots, CalculateStreak } from "../../utils/tools";
+import { CalculateAverageAcc, CalculateAverageWPM, CalculateBestWPM, CalculateErrorHotspots, CalculateStreak, SortRoundsArrayByCreated } from "../../utils/tools";
 import Tooltip from "../ui/Tooltip";
 import MatchHistory from "./MatchHistory";
+import { forwardRef } from "react";
 
-export default function Profile(){
-    const [open, setOpen] = useState<boolean>(false);
+const Profile = forwardRef<HTMLDivElement, {}>(function Profile(_, ref) {
     const [showSettingsWindow, setShowSettingsWindow] = useState<boolean>(false);
     const [changeCurrentUsername, setChangeCurrentUsername] = useState<boolean>(false);
     const [newUsername, setNewUsername] = useState<string>("");
     const [username, setUsername] = useState<string>("");
     const [profilePicture, setProfilePicture] = useState<string | null>(null);
     const [file, setFile] = useState<File | null>(null);
-    const { stats, loadStats } = useGameStore();
+    const { isUserWindowOpen: open, setIsUserWindowOpen: setOpen, stats, loadStats } = useGameStore();
     const [currentGraph, setCurrentGraph] = useState<string>("WpmGraph");
 
     const userStats = useMemo(() => {
-        const rounds = stats?.rounds ?? [];
+        const rounds = SortRoundsArrayByCreated(stats?.rounds ?? []);
         const hotspot = CalculateErrorHotspots(rounds);
         return {
             "Average Acc": CalculateAverageAcc(rounds),
@@ -35,7 +35,7 @@ export default function Profile(){
             "Best WPM": CalculateBestWPM(rounds)?.[0] ?? 0,
             "Best Time": CalculateBestWPM(rounds)?.[1] ?? 0,
             "Error Hotspots": Object.keys(hotspot ?? {})[0] ?? "",
-            "Streaks": CalculateStreak(rounds) - 1
+            "Streaks": CalculateStreak(rounds)
         };
     }, [stats]);
 
@@ -95,12 +95,12 @@ export default function Profile(){
         reloadWindowOpen();
     }
 
-    const rounds = (stats?.rounds ?? []).map((r) => ({ ...r, errorCount: r.errorLetters.length }));
+    const rounds = SortRoundsArrayByCreated(stats?.rounds ?? []).map((r) => ({ ...r, errorCount: r.errorLetters.length }));
 
     const WpmGraph = (
         <Graph
             data={rounds}
-            xKey={(_, i) => i + 1}
+            xKey={(_, i) => `Round ${i + 1}`}
             series={[{ key: "wpm", label: "WPM", fill: true }]}
             xTitle="Rounds"
             yTitle="WPM"
@@ -114,7 +114,7 @@ export default function Profile(){
     const AccGraph = (
         <Graph
             data={rounds}
-            xKey={(_, i) => i + 1}
+            xKey={(_, i) => `Round ${i + 1}`}
             series={[{ key: "accuracy", label: "Accuracy", fill: true }]}
             xTitle="Rounds"
             yTitle="Accuracy"
@@ -128,7 +128,7 @@ export default function Profile(){
     const TimeGraph = (
         <Graph
             data={rounds}
-            xKey={(_, i) => i + 1}
+            xKey={(_, i) => `Round ${i + 1}`}
             series={[{ key: "time", label: "Time", fill: true }]}
             xTitle="Rounds"
             yTitle="Time"
@@ -142,7 +142,7 @@ export default function Profile(){
     const ErrorLettersGraph = (
         <Graph
             data={rounds}
-            xKey={(_, i) => i + 1}
+            xKey={(_, i) => `Round ${i + 1}`}
             series={[{ key: `errorCount`, label: "ErrorLetters", fill: true }]}
             xTitle="Rounds"
             yTitle="Errors"
@@ -159,7 +159,7 @@ export default function Profile(){
     }
 
     const windowValue = (
-        <div className="flex flex-row gap-x-10 h-full"> 
+        <div ref={ref ? ref : undefined} className="flex flex-row gap-x-10 h-full"> 
             <div className="w-1/4 flex flex-col gap-5">
                 <div className="flex flex-col gap-2">
                     <div className="w-full aspect-square relative overflow-visible">
@@ -238,7 +238,7 @@ export default function Profile(){
                 <div className="flex-[3] flex flex-row gap-x-5 min-h-0">
                     <div className="w-full h-full bg-game-bg-light rounded-md p-5 pl-0">
                         <div className="w-fit h-fit flex items-center justify-center ml-5">
-                            <DropDown options={["WpmGraph" ,"AccGraph", "TimeGraph", "ErrorLettersGraph"]} onChange={(value) => handleGraphDropDown(value)}/>
+                            <DropDown options={["WpmGraph" ,"AccGraph", "TimeGraph", "ErrorLettersGraph"]} value={currentGraph} onChange={(value) => handleGraphDropDown(value)}/>
                         </div>
                             {currentGraph === "WpmGraph" && WpmGraph}
                             {currentGraph === "AccGraph" && AccGraph}
@@ -247,7 +247,7 @@ export default function Profile(){
                     </div>
                 </div>
                 <div className="flex-[2] bg-game-bg-light rounded-md min-h-0">
-                    <MatchHistory rounds={stats?.rounds ?? []}/>
+                    <MatchHistory rounds={SortRoundsArrayByCreated(stats?.rounds ?? [])}/>
                 </div>
             </div>
         </div>
@@ -263,4 +263,6 @@ export default function Profile(){
             <Window open={open} value={windowValue} width={65} height={70} className="motion-preset-blur-up-lg"/>
         </>
     )
-}
+});
+
+export default Profile;

@@ -11,11 +11,11 @@ import { GetAllThemes } from "../../utils/tools";
 import { setLocalItem, getLocalItem } from "../../storage/localStorage";
 import { reload } from "../game/Reload";
 import { useGameStore } from "../../state";
-import Tooltip from "../ui/Tooltip";
 
 export default function Toolbar(){
     const { bumpTextVersion } = useGameStore();
     const [themes, setThemes] = useState<string[]>();
+    const [selectedTitle, setSelectedTitle] = useState<string>("Random");
 
     useEffect(() => {
         setThemes(GetAllThemes());
@@ -52,6 +52,7 @@ export default function Toolbar(){
     const handleTextDropDown = (value: string) => {
         const allTitle = getAllTitle();
         if (!value || allTitle.length === 0) return;
+        setSelectedTitle(value);
         const currentTitle = value;
         const length = FetchSettingsData(0).Text.Length;
         const randomTitle = allTitle[Math.floor(Math.random() * allTitle.length)];
@@ -68,8 +69,8 @@ export default function Toolbar(){
                 <OptionsButton text="☰" tooltip="Text options" 
                 optionsValue={[<ButtonSelection children={[<Button index={0} text="Short" onClickFunction={() => UpdateTextData("short")}/>, 
                 <Button index={1} text="Middle" onClickFunction={() => UpdateTextData("medium")}/>, 
-                <Button index={2} text="Long" onClickFunction={() => UpdateTextData("long")}/>,
-                <DropDown label="" options={["Random", ...getAllTitle()]} onChange={handleTextDropDown}/>]} defaultSelect={0}/>]}/>
+                <Button index={2} text="Long" onClickFunction={() => UpdateTextData("long")}/> ,
+                <DropDown label="" options={["Random", ...getAllTitle()]} value={selectedTitle} onChange={handleTextDropDown}/>]} defaultSelect={0}/>]}/>
                 
                 <OptionsButton text="⏱" tooltip="Timer options" 
                 optionsValue={[<ButtonSelection children={[<Button index={0} text="15's" onClickFunction={() => UpdateTimeData(15)} tooltip="Set a timer too 15 seconds."/>, 
@@ -80,9 +81,7 @@ export default function Toolbar(){
                 <OptionsButton text="⏹" tooltip="Theme" itemsPerRow={15}
                 optionsValue={[
                     <ButtonSelection children={themes !== undefined ? themes.map((theme, index) => (
-                        <Tooltip content={theme}>
-                            <Button key={index} text="" className={` h-10 ${theme} text-accent-primary`} onClickFunction={() => handleThemeBtn(theme, `${index}`)}/>
-                        </Tooltip>
+                        <Button key={index} text="" className={` h-10 ${theme} text-accent-primary`} onClickFunction={() => handleThemeBtn(theme, `${index}`)}/>
                     ))
                     :
                     [<Button/>, <Button/>]

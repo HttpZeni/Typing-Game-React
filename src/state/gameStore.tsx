@@ -17,6 +17,8 @@ type GameStoreValue = {
   statsError: string | null;
   firstLoaded: boolean;
   loadStats: () => Promise<void>;
+  isUserWindowOpen: boolean;
+  setIsUserWindowOpen: React.Dispatch<React.SetStateAction<boolean>>;
 };
 
 const GameStoreContext = createContext<GameStoreValue | null>(null);
@@ -31,6 +33,7 @@ export function GameStoreProvider({ children }: { children: ReactNode }) {
   const [loadingStats, setLoadingStats] = useState(false);
   const [statsError, setStatsError] = useState<string | null>(null);
   const [firstLoaded, setFirstLoaded] = useState<boolean>(true);
+  const [isUserWindowOpen, setIsUserWindowOpen] = useState<boolean>(false);
 
   const bumpTextVersion = useCallback(() => setTextVersion((v) => v + 1), []);
 
@@ -94,6 +97,8 @@ export function GameStoreProvider({ children }: { children: ReactNode }) {
       statsError,
       firstLoaded,
       loadStats,
+      isUserWindowOpen,
+      setIsUserWindowOpen,
     }),
     [
       game,
@@ -106,6 +111,8 @@ export function GameStoreProvider({ children }: { children: ReactNode }) {
       bumpTextVersion,
       firstLoaded,
       loadStats,
+      isUserWindowOpen,
+      setIsUserWindowOpen,
     ]
   );
 

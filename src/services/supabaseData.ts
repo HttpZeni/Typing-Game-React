@@ -13,6 +13,8 @@ export type UserStats = {
   userId: string
   created_at: string
   rounds: {
+    created_at: string
+    text: string
     time: number
     accuracy: number
     wpm: number

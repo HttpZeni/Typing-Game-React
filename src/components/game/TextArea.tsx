@@ -49,7 +49,9 @@ export default function TextArea() {
         const elapsedSeconds = Math.max(elapsedSecondsRef.current, 0);
         const minutes = elapsedSeconds / 60;
         const round = {
+            created_at: new Date().toISOString(),
             time: elapsedSeconds,
+            text: text,
             accuracy: AccurancyPercentageCalculator(correct, Math.max(totalTypedRef.current, 1)),
             wpm: CalculateWPM(totalTypedRef.current, minutes),
             errorLetters: totalErrorLetters.current,
