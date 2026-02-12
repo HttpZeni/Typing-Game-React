@@ -180,7 +180,7 @@ export async function signInWithProvider(provider: "google" | "discord") {
     const { error } = await supabase.auth.signInWithOAuth({
         provider,
         options: {
-            redirectTo: window.location.origin,
+            redirectTo: `${window.location.origin}${import.meta.env.BASE_URL}`,
         },
     });
 
