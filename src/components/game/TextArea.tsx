@@ -14,9 +14,11 @@ export default function TextArea() {
         setShowResults,
         setGame,
         textVersion,
+        loadStats,
     } = useGameStore();
     const [userInput, setUserInput] = useState<string>("");
     const [charClasses, setCharClasses] = useState<string[]>([]);
+    const [saveError, setSaveError] = useState<string | null>(null);
     const [timer, setTimer] = useState<number>(FetchGameSettingsData(0).Timer);
     const [text, setText] = useState<string>(() => FetchGameSettingsData(0).CurrentText);
     const didMountRef = useRef(false);
@@ -44,6 +46,7 @@ export default function TextArea() {
     const saveRound = useCallback(async () => {
         if (hasSavedRoundRef.current) return;
         hasSavedRoundRef.current = true;
+        setSaveError(null);
 
         const correct = Math.max(totalTypedRef.current - totalErrorsRef.current, 0);
         const elapsedSeconds = Math.max(elapsedSecondsRef.current, 0);
@@ -59,10 +62,16 @@ export default function TextArea() {
 
         try {
             await appendUserRound(round);
-        } catch (err) {
-            // TODO: handle appendUserRound failure.
+            await loadStats();
+        } catch (error) {
+            hasSavedRoundRef.current = false;
+            const message =
+                error && typeof error === "object" && "message" in error && typeof (error as { message?: string }).message === "string"
+                    ? (error as { message: string }).message
+                    : "Could not save your round. Please try again.";
+            setSaveError(message);
         }
-    }, [flatText.length]);
+    }, [loadStats, text]);
 
     useEffect(() => {}, [setTextState]);
 
@@ -82,6 +91,7 @@ export default function TextArea() {
             totalErrorLetters.current = [];
             hasSavedRoundRef.current = false;
             elapsedSecondsRef.current = 0;
+            setSaveError(null);
 
             setCharClasses(Array.from({ length: resetFlatText.length }, () => textState.Normal));
             setTimer(resetTimer);
@@ -221,7 +231,7 @@ export default function TextArea() {
             clearInterval(t);
             clearInterval(g);
         };
-    }, [startGame, setGame, setShowResults, setStartGame]);
+    }, [saveRound, startGame, setGame, setShowResults, setStartGame]);
 
     useEffect(() => {
         const idx = userInput.length - 1;
@@ -236,11 +246,6 @@ export default function TextArea() {
         }
 
         const isCorrect = userInput[idx] == flatText[idx];
-        let correctCount = 0;
-        const max = Math.min(userInput.length, flatText.length);
-        for (let i = 0; i < max; i += 1) {
-            if (userInput[i] === flatText[i]) correctCount += 1;
-        }
         setGame((prev) => ({
             ...prev,
             Character: totalTypedRef.current,
@@ -315,11 +320,19 @@ export default function TextArea() {
 
     return (
         <div className="relative w-full h-2/5">
+            {saveError && (
+                <div className="absolute top-3 left-1/2 z-10 -translate-x-1/2 rounded-md border border-text-incorrect bg-card-bg px-3 py-1 text-sm font-semibold text-text-incorrect shadow-card pointer-events-none">
+                    {saveError}
+                </div>
+            )}
             {showCountdown && (
                 <div className="absolute top-3 right-3 z-10 rounded-md border border-card-border bg-game-bg-light px-3 py-1 text-sm font-semibold text-text-primary shadow-card pointer-events-none">
                     {timer}
                 </div>
             )}
+            <div className="absolute top-3 left-3 z-10 rounded-md border border-card-border bg-game-bg-light px-3 py-1 text-sm font-semibold text-text-primary shadow-card pointer-events-none">
+                {`${startGame ? AccurancyPercentageCalculator(totalTypedRef.current - totalErrorsRef.current, totalTypedRef.current) : 100}%`}
+            </div>
 
             <div
                 ref={containerRef}

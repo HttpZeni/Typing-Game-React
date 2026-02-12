@@ -1,4 +1,4 @@
-import { FetchGameSettingsData, FetchSettingsData, UpdateGameSettingsData } from "../services/fetchData";
+import { FetchSettingsData, UpdateGameSettingsData } from "../services/fetchData";
 import { get_text } from "../services/fetchText";
 import type { Round } from "../services/supabaseData";
 
@@ -131,5 +131,37 @@ export function CalculateStreak(ListOfGames: Round[] | undefined): number{
 }
 
 export function SortRoundsArrayByCreated(Rounds: Round[]): Array<Round>{
-    return Rounds.sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime())
+    return [...Rounds].sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime())
+}
+
+export function RateRound(round: Round): number | undefined{
+    if (round == undefined) return;
+
+    const clamp = (value: number, min: number, max: number) => Math.min(max, Math.max(min, value));
+    const textLength = round.text?.length ?? 0;
+    const errorRate = round.errorLetters.length / Math.max(textLength, 1);
+
+    const accuracyScore = clamp(round.accuracy / 100, 0, 1) * 6;
+    const speedScore = clamp(round.wpm / 120, 0, 1) * 3;
+    const errorScore = clamp(1 - errorRate * 3, 0, 1) * 1;
+
+    const rating = accuracyScore + speedScore + errorScore;
+    return Number(rating.toFixed(2));
+}
+
+export function CalculateOverallRating(ListOfGames: Round[] | undefined): number | undefined{
+    if (ListOfGames === undefined || ListOfGames.length === 0) return;
+
+    let overallRating = 0;
+    let validRounds = 0;
+
+    for (const game of ListOfGames){
+        const roundRating = RateRound(game);
+        if (roundRating === undefined) continue;
+        overallRating += roundRating;
+        validRounds++;
+    }
+
+    if (validRounds === 0) return;
+    return Number((overallRating / validRounds).toFixed(2));
 }

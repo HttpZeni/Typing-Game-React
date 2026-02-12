@@ -1,11 +1,11 @@
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import Window from "../layout/Window";
 import Button from "../ui/Button";
 import DropDown from "../ui/DropDown";
 import { Graph } from "../game/Graph";
 import MatchHistory from "./MatchHistory";
 import Tooltip from "../ui/Tooltip";
-import { CalculateAverageAcc, CalculateAverageWPM, CalculateBestWPM, CalculateErrorHotspots, CalculateStreak, SortRoundsArrayByCreated } from "../../utils/tools";
+import { CalculateAverageAcc, CalculateAverageWPM, CalculateBestWPM, CalculateErrorHotspots, CalculateOverallRating, CalculateStreak, SortRoundsArrayByCreated } from "../../utils/tools";
 import { getUserSettingsById, getUserStatsByUserId, getUsernameByUserId, type UserStats } from "../../services/supabaseData";
 
 type Props = {
@@ -21,33 +21,36 @@ export default function PublicProfile({ userId, open, onClose }: Props) {
   const [loading, setLoading] = useState(false);
   const [currentGraph, setCurrentGraph] = useState<string>("WpmGraph");
 
-  useEffect(() => {
+  const loadProfile = useCallback(async () => {
     if (!open) return;
-    let alive = true;
     setLoading(true);
+    try {
+      const [name, settings, userStats] = await Promise.all([
+        getUsernameByUserId(userId),
+        getUserSettingsById(userId),
+        getUserStatsByUserId(userId),
+      ]);
+      setUsername(name);
+      setProfilePicture(settings.profilePicture ?? null);
+      setStats(userStats);
+    } catch {
+      // TODO: handle public profile load error.
+    } finally {
+      setLoading(false);
+    }
+  }, [open, userId]);
 
-    Promise.all([
-      getUsernameByUserId(userId),
-      getUserSettingsById(userId),
-      getUserStatsByUserId(userId),
-    ])
-      .then(([name, settings, userStats]) => {
-        if (!alive) return;
-        setUsername(name);
-        setProfilePicture(settings.profilePicture ?? null);
-        setStats(userStats);
-      })
-      .catch((error) => {
-        // TODO: handle public profile load error.
-      })
-      .finally(() => {
-        if (alive) setLoading(false);
-      });
-
+  useEffect(() => {
+    let alive = true;
+    if (!open) return;
+    (async () => {
+      await loadProfile();
+      if (!alive) return;
+    })();
     return () => {
       alive = false;
     };
-  }, [open, userId]);
+  }, [open, loadProfile]);
 
   const rounds = SortRoundsArrayByCreated(stats?.rounds ?? []).map((r) => ({ ...r, errorCount: r.errorLetters.length }));
 
@@ -55,6 +58,7 @@ export default function PublicProfile({ userId, open, onClose }: Props) {
     const sortedRounds = SortRoundsArrayByCreated(stats?.rounds ?? []);
     const hotspot = CalculateErrorHotspots(sortedRounds);
     return {
+      "Overall Rating": CalculateOverallRating(sortedRounds),
       "Average Acc": CalculateAverageAcc(sortedRounds),
       "Average WPM": CalculateAverageWPM(sortedRounds),
       "Best WPM": CalculateBestWPM(sortedRounds)?.[0] ?? 0,
@@ -126,7 +130,10 @@ export default function PublicProfile({ userId, open, onClose }: Props) {
         <div className="text-sm font-display uppercase tracking-[0.3em] text-text-secondary">
           Public Profile
         </div>
-        <Button text="Close" onClickFunction={onClose} />
+        <div className="flex items-center gap-2">
+          <Button text={loading ? "Refreshing..." : "Refresh"} onClickFunction={() => { void loadProfile(); }} />
+          <Button text="Close" onClickFunction={onClose} />
+        </div>
       </div>
 
       {loading ? (
@@ -150,6 +157,12 @@ export default function PublicProfile({ userId, open, onClose }: Props) {
               </div>
 
               <ul className="list-none pl-0 space-y-2 text-lg text-text-primary font-mono font-extrabold">
+                <li className="flex items-center justify-between">
+                  <Tooltip content="The average accuracy this player has.">
+                    <span className="cursor-default">Overall Rating</span>
+                  </Tooltip>
+                  <span>{userStats["Overall Rating"] !== undefined ? userStats["Overall Rating"] : 0} / 10</span>
+                </li>
                 <li className="flex items-center justify-between">
                   <Tooltip content="The average accuracy this player has.">
                     <span className="cursor-default">Average Accuracy</span>

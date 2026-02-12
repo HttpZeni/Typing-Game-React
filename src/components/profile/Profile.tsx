@@ -11,7 +11,7 @@ import { getLocalItem, removeLocalItem } from "../../storage/localStorage";
 import { reloadWindowOpen } from "../game/Reload";
 import FileUploader from "./FileUploader";
 import { useGameStore } from "../../state";
-import { CalculateAverageAcc, CalculateAverageWPM, CalculateBestWPM, CalculateErrorHotspots, CalculateStreak, SortRoundsArrayByCreated } from "../../utils/tools";
+import { CalculateAverageAcc, CalculateAverageWPM, CalculateBestWPM, CalculateErrorHotspots, CalculateOverallRating, CalculateStreak, SortRoundsArrayByCreated } from "../../utils/tools";
 import Tooltip from "../ui/Tooltip";
 import MatchHistory from "./MatchHistory";
 import { forwardRef } from "react";
@@ -30,6 +30,7 @@ const Profile = forwardRef<HTMLDivElement, {}>(function Profile(_, ref) {
         const rounds = SortRoundsArrayByCreated(stats?.rounds ?? []);
         const hotspot = CalculateErrorHotspots(rounds);
         return {
+            "Overall Rating": CalculateOverallRating(rounds),
             "Average Acc": CalculateAverageAcc(rounds),
             "Average WPM": CalculateAverageWPM(rounds),
             "Best WPM": CalculateBestWPM(rounds)?.[0] ?? 0,
@@ -48,7 +49,7 @@ const Profile = forwardRef<HTMLDivElement, {}>(function Profile(_, ref) {
             .then((settings) => {
                 if (alive) setProfilePicture(settings.profilePicture ?? null);
             })
-            .catch((error) => {
+            .catch(() => {
                 // TODO: handle user settings load error.
             });
         if (getLocalItem("open-profile-on-load") === "true") {
@@ -66,7 +67,7 @@ const Profile = forwardRef<HTMLDivElement, {}>(function Profile(_, ref) {
             .then((url) => {
                 if (url) setProfilePicture(url);
             })
-            .catch((error) => {
+            .catch(() => {
                 // TODO: handle profile picture update error.
             });
     }, [file])
@@ -196,6 +197,13 @@ const Profile = forwardRef<HTMLDivElement, {}>(function Profile(_, ref) {
                     </div>
                     
                     <ul className="list-none pl-0 space-y-2 text-lg text-text-primary font-mono font-extrabold">
+                        <li className="flex items-center justify-between">
+                            <Tooltip content="Overall rating from speed, accuracy and error rate.">
+                                <span className="cursor-default">Overall Rating</span>
+                            </Tooltip>
+                            <span>{userStats["Overall Rating"] !== undefined ? userStats["Overall Rating"] : 0} / 10</span>
+                        </li>
+                        <div className="h-px w-full bg-white/80"/>
                         <li className="flex items-center justify-between">
                             <Tooltip content="The average accuracy this player has.">
                                 <span className="cursor-default">Average Accuracy</span>

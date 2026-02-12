@@ -44,27 +44,27 @@ const dataChangeSubscribers = new Set<DataChangeSubscriber>();
 const gameDataChangeSubscribers = new Set<DataChangeSubscriber>();
 const gameSettingsChangeSubscribers = new Set<DataChangeSubscriber>();
 
-function notifySubscribers(subscribers: Set<DataChangeSubscriber>, kind: string) {
+function notifySubscribers(subscribers: Set<DataChangeSubscriber>) {
     for (const subscriber of subscribers) {
         try {
             subscriber();
-        } catch (err) {
+        } catch {
             // TODO: handle subscriber error.
         }
     }
 }
 
 function notifyDataChangeSubscribers() {
-    notifySubscribers(dataChangeSubscribers, "SubscribeDataChanges");
+    notifySubscribers(dataChangeSubscribers);
 }
 
 function notifyGameDataChangeSubscribers() {
-    notifySubscribers(gameDataChangeSubscribers, "SubscribeGameDataChanges");
+    notifySubscribers(gameDataChangeSubscribers);
     notifyDataChangeSubscribers();
 }
 
 function notifyGameSettingsChangeSubscribers() {
-    notifySubscribers(gameSettingsChangeSubscribers, "SubscribeGameSettingsChanges");
+    notifySubscribers(gameSettingsChangeSubscribers);
     notifyDataChangeSubscribers();
 }
 

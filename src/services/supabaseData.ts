@@ -107,7 +107,7 @@ export async function addUserStatsData() {
         Errors: FetchGameData(0).Errors,
     }
 
-    const {data, error} = await supabase.from("UserStats").insert([newData]).single();
+    const { error } = await supabase.from("UserStats").insert([newData]).single();
 
     if (error){
         // TODO: handle user stats save error.
