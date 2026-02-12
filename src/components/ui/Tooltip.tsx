@@ -54,7 +54,7 @@ export default function Tooltip({ content, children, disabled = false, offset = 
           <div
             ref={tipRef}
             style={{ position: "fixed", top: pos.top, left: pos.left }}
-            className="z-[999] px-4 py-2 bg-card-bg border-2 border-accent-primary rounded-lg shadow-glow-purple transition-[opacity,transform] duration-200 ease-out will-change-transform opacity-100 translate-y-0 scale-100"
+            className="z-[9998] px-4 py-2 bg-card-bg border-2 border-accent-primary rounded-lg shadow-glow-purple transition-[opacity,transform] duration-200 ease-out will-change-transform opacity-100 translate-y-0 scale-100"
             aria-hidden="true"
           >
             <span className="text-accent-primary text-sm font-display font-bold tracking-wide">
