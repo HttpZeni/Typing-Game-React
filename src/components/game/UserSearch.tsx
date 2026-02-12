@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import Button from "../ui/Button";
 import Input from "../ui/Input";
 import PublicProfile from "../profile/PublicProfile";
@@ -187,7 +187,7 @@ export default function UserSearch({ open: controlledOpen, onClose, showTriggerB
     }
   };
 
-  const handleSearch = async () => {
+  const handleSearch = useCallback(async () => {
     const trimmed = query.trim();
     setHasSearched(true);
     if (trimmed.length < 2) {
@@ -219,50 +219,50 @@ export default function UserSearch({ open: controlledOpen, onClose, showTriggerB
 
       setResults(withPictures);
       setStatusMap(nextStatus);
-    } catch (err) {
+    } catch {
       // TODO: handle search error.
       setError("Search failed. Please try again.");
     } finally {
       setLoading(false);
     }
-  };
+  }, [query]);
 
-  const updateUserStatus = (userId: string, status: FriendStatus) => {
+  const updateUserStatus = useCallback((userId: string, status: FriendStatus) => {
     setStatusMap((prev) => ({ ...prev, [userId]: status }));
-  };
+  }, []);
 
-  const handleAddFriend = async (userId: string) => {
+  const handleAddFriend = useCallback(async (userId: string) => {
     try {
       const requestId = await sendFriendRequest(userId);
       updateUserStatus(userId, { state: "outgoing", requestId });
-    } catch (err) {
+    } catch {
       // TODO: handle add friend error.
       setError("Could not send friend request.");
     }
-  };
+  }, [updateUserStatus]);
 
-  const handleRemoveFriend = async (userId: string) => {
+  const handleRemoveFriend = useCallback(async (userId: string) => {
     try {
       await removeFriend(userId);
       updateUserStatus(userId, { state: "none" });
-    } catch (err) {
+    } catch {
       // TODO: handle remove friend error.
       setError("Could not remove friend.");
     }
-  };
+  }, [updateUserStatus]);
 
-  const handleRespond = async (userId: string, action: "accept" | "reject") => {
+  const handleRespond = useCallback(async (userId: string, action: "accept" | "reject") => {
     const status = statusMap[userId];
     if (!status?.requestId) return;
 
     try {
       await respondToFriendRequest(status.requestId, userId, action);
       updateUserStatus(userId, { state: action === "accept" ? "friends" : "none" });
-    } catch (err) {
+    } catch {
       // TODO: handle respond error.
       setError("Failed to update friend request.");
     }
-  };
+  }, [statusMap, updateUserStatus]);
 
   const handleViewProfile = (user: PublicUser) => {
     setSelectedUser(user);
@@ -305,7 +305,7 @@ export default function UserSearch({ open: controlledOpen, onClose, showTriggerB
         ))}
       </div>
     );
-  }, [loading, results, statusMap]);
+  }, [loading, results, statusMap, handleAddFriend, handleRemoveFriend, handleRespond]);
 
   if (!isOpen && !showTriggerButton) return null;
 

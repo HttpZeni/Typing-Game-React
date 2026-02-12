@@ -16,7 +16,7 @@ import Tooltip from "../ui/Tooltip";
 import MatchHistory from "./MatchHistory";
 import { forwardRef } from "react";
 
-const Profile = forwardRef<HTMLDivElement, {}>(function Profile(_, ref) {
+const Profile = forwardRef<HTMLDivElement, Record<string, never>>(function Profile(_, ref) {
     const [showSettingsWindow, setShowSettingsWindow] = useState<boolean>(false);
     const [changeCurrentUsername, setChangeCurrentUsername] = useState<boolean>(false);
     const [newUsername, setNewUsername] = useState<string>("");
@@ -59,7 +59,7 @@ const Profile = forwardRef<HTMLDivElement, {}>(function Profile(_, ref) {
         return () => {
             alive = false;
         };
-    }, []);
+    }, [setOpen]);
 
     useEffect(() => {
         if (file === null) return;

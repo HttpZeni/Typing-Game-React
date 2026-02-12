@@ -1,5 +1,4 @@
 import type { ReactNode, ComponentProps } from "react";
-import { useEffect, useState } from "react";
 
 type props = {
   value: ReactNode
@@ -12,32 +11,11 @@ type props = {
 } & ComponentProps<"div">
 
 export default function Window({value, width="fit", height="fit", bgClass="bg-card-bg", borderClass = "border-2 border-card-border", className, open = true, overlayClassName}: props){
-    const [isRendered, setIsRendered] = useState<boolean>(open);
-    const [isClosing, setIsClosing] = useState<boolean>(false);
-
-    useEffect(() => {
-        if (open) {
-            setIsRendered(true);
-            setIsClosing(false);
-            return;
-        }
-
-        if (isRendered) {
-            setIsClosing(true);
-        }
-    }, [open, isRendered]);
-
-    if (!isRendered) return null;
+    if (!open) return null;
 
     return(
         <div
-            className={`fixed inset-0 z-30 bg-black/20 backdrop-blur-sm flex items-center justify-center ${isClosing ? "animate-fade-out" : "animate-fade-in"} ${overlayClassName ?? ""}`}
-            onAnimationEnd={() => {
-                if (isClosing) {
-                    setIsClosing(false);
-                    setIsRendered(false);
-                }
-            }}
+            className={`fixed inset-0 z-30 bg-black/20 backdrop-blur-sm flex items-center justify-center animate-fade-in ${overlayClassName ?? ""}`}
         >
             <div
             style={{
@@ -46,7 +24,7 @@ export default function Window({value, width="fit", height="fit", bgClass="bg-ca
                 maxWidth: "92vw",
                 maxHeight: "92vh",
             }}
-            className={`relative z-10 w-fit h-fit overflow-y-auto p-6 md:p-10 rounded-lg ${bgClass} ${borderClass} ${className ?? ""} ${isClosing ? "animate-blur-down" : ""}`}>
+            className={`relative z-10 w-fit h-fit overflow-y-auto p-6 md:p-10 rounded-lg ${bgClass} ${borderClass} ${className ?? ""}`}>
                 {value}
             </div>
         </div>

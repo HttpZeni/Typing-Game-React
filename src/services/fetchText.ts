@@ -32,7 +32,7 @@ export function get_text(length: TextLength): TextSelection {
   return { title: entry.title, text: entry[length] };
 }
 
-export function getTextByTitle( title: string, length: TextLength): TextSelection | any {
+export function getTextByTitle(title: string, length: TextLength): TextSelection | null {
   const entry = typedTexts.find(t => t.title === title);
   if (!entry) return null;
   return { title: entry.title,  text: entry[length] };

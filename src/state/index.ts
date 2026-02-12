@@ -1,1 +1,2 @@
-export { GameStoreProvider, useGameStore } from "./gameStore";
+export { GameStoreProvider } from "./gameStore";
+export { useGameStore } from "./useGameStore";

@@ -15,16 +15,12 @@ const getPortalRoot = (): HTMLElement | null => {
 
 export default function Tooltip({ content, children, disabled = false, offset = 10 }: TooltipProps) {
   const [open, setOpen] = useState(false);
-  const [ready, setReady] = useState(false);
   const [pos, setPos] = useState({ top: 0, left: 0 });
   const anchorRef = useRef<HTMLSpanElement | null>(null);
   const tipRef = useRef<HTMLDivElement | null>(null);
 
   useLayoutEffect(() => {
-    if (!open) {
-      setReady(false);
-      return;
-    }
+    if (!open) return;
     const anchor = anchorRef.current;
     const tip = tipRef.current;
     if (!anchor || !tip) return;
@@ -41,10 +37,9 @@ export default function Tooltip({ content, children, disabled = false, offset = 
     left = Math.max(8, Math.min(left, window.innerWidth - tipRect.width - 8));
 
     setPos({ top, left });
-    setReady(true);
   }, [open, offset]);
 
-  const portalRoot = useMemo(getPortalRoot, []);
+  const portalRoot = useMemo(() => getPortalRoot(), []);
 
   return (
     <span
@@ -59,9 +54,7 @@ export default function Tooltip({ content, children, disabled = false, offset = 
           <div
             ref={tipRef}
             style={{ position: "fixed", top: pos.top, left: pos.left }}
-            className={`z-[999] px-4 py-2 bg-card-bg border-2 border-accent-primary rounded-lg shadow-glow-purple transition-[opacity,transform] duration-200 ease-out will-change-transform ${
-              ready ? "opacity-100 translate-y-0 scale-100" : "opacity-0 -translate-y-2 scale-95"
-            }`}
+            className="z-[999] px-4 py-2 bg-card-bg border-2 border-accent-primary rounded-lg shadow-glow-purple transition-[opacity,transform] duration-200 ease-out will-change-transform opacity-100 translate-y-0 scale-100"
             aria-hidden="true"
           >
             <span className="text-accent-primary text-sm font-display font-bold tracking-wide">

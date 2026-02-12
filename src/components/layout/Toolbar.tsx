@@ -6,7 +6,7 @@ import type { TextLength } from "../../services/fetchData";
 import { UpdateText, UpdateTimer } from "../../utils/tools";
 import DropDown from "../ui/DropDown";
 import { getAllTitle, getTextByTitle } from "../../services/fetchText";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { GetAllThemes } from "../../utils/tools";
 import { setLocalItem, getLocalItem } from "../../storage/localStorage";
 import { reload } from "../game/Reload";
@@ -14,11 +14,10 @@ import { useGameStore } from "../../state";
 
 export default function Toolbar(){
     const { bumpTextVersion } = useGameStore();
-    const [themes, setThemes] = useState<string[]>();
+    const themes = useMemo(() => GetAllThemes(), []);
     const [selectedTitle, setSelectedTitle] = useState<string>("Random");
 
     useEffect(() => {
-        setThemes(GetAllThemes());
         if (getLocalItem("theme") === undefined){
             setLocalItem("theme", "theme-earthy-earth");
         }
@@ -28,10 +27,6 @@ export default function Toolbar(){
         
         // TODO: consider telemetry for theme selection.
     }, [])
-
-    useEffect(() => {
-        // TODO: handle themes load state if needed.
-    }, [themes])
 
     const handleThemeBtn = (theme: string, themeIndex: string) => {
         setLocalItem("theme", theme);
@@ -83,9 +78,7 @@ export default function Toolbar(){
                     <ButtonSelection children={themes !== undefined ? themes.map((theme, index) => (
                         <Button key={index} text="" className={` h-10 ${theme} text-accent-primary`} onClickFunction={() => handleThemeBtn(theme, `${index}`)}/>
                     ))
-                    :
-                    [<Button/>, <Button/>]
-                } defaultSelect={parseInt(getLocalItem("theme-index"))}/>
+                    : []} defaultSelect={parseInt(getLocalItem("theme-index"))}/>
                 ]}/>
             </div>
         </>

@@ -39,6 +39,12 @@ export type UserStats = {
 
 export type Round = UserStats["rounds"][number]
 
+type FriendRow = { friend_id: string };
+type OutgoingRequestRow = { id: number; receiver_id: string };
+type IncomingRequestRow = { id: number; sender_id: string };
+type UserRow = { Username: string | null; userId: string };
+type UserSettingRow = { id: string; profilePicture: string | null };
+
 function normalizeAuthError(error: unknown, fallback: string) {
     if (!error || typeof error !== "object") return fallback;
     if ("message" in error && typeof (error as { message?: string }).message === "string") {
@@ -440,12 +446,12 @@ export async function getFriendStatusForUsers(userIds: string[]) {
   ]);
 
   return {
-    friends: (friendsRes.data ?? []).map((f: any) => f.friend_id),
-    outgoing: (outgoingRes.data ?? []).reduce((acc: Record<string, number>, item: any) => {
+    friends: ((friendsRes.data ?? []) as FriendRow[]).map((f) => f.friend_id),
+    outgoing: ((outgoingRes.data ?? []) as OutgoingRequestRow[]).reduce((acc: Record<string, number>, item) => {
       acc[item.receiver_id] = item.id;
       return acc;
     }, {}),
-    incoming: (incomingRes.data ?? []).reduce((acc: Record<string, number>, item: any) => {
+    incoming: ((incomingRes.data ?? []) as IncomingRequestRow[]).reduce((acc: Record<string, number>, item) => {
       acc[item.sender_id] = item.id;
       return acc;
     }, {}),
@@ -518,7 +524,7 @@ export async function getIncomingFriendRequests() {
     .eq("status", "pending");
 
   if (error) throw error;
-  const senderIds = (data ?? []).map((r: any) => r.sender_id);
+  const senderIds = ((data ?? []) as IncomingRequestRow[]).map((r) => r.sender_id);
   if (senderIds.length == 0) return [];
 
   const { data: userRows } = await supabase
@@ -532,10 +538,10 @@ export async function getIncomingFriendRequests() {
     .in("id", senderIds);
 
   const settingsMap = new Map<string, string | null>();
-  (settingsRows ?? []).forEach((row: any) => settingsMap.set(row.id, row.profilePicture));
+  ((settingsRows ?? []) as UserSettingRow[]).forEach((row) => settingsMap.set(row.id, row.profilePicture));
 
-  return (data ?? []).map((row: any) => {
-    const userRow = (userRows ?? []).find((u: any) => u.userId === row.sender_id);
+  return ((data ?? []) as IncomingRequestRow[]).map((row) => {
+    const userRow = ((userRows ?? []) as UserRow[]).find((u) => u.userId === row.sender_id);
     return {
       id: row.id,
       sender_id: row.sender_id,
@@ -576,7 +582,7 @@ export async function getFriendsList(): Promise<PublicUser[]> {
     .eq("user_id", user.id);
 
   if (error) throw error;
-  const friendIds = (friendRows ?? []).map((f: any) => f.friend_id);
+  const friendIds = ((friendRows ?? []) as FriendRow[]).map((f) => f.friend_id);
   if (friendIds.length == 0) return [];
 
   const { data: userRows } = await supabase
@@ -584,7 +590,7 @@ export async function getFriendsList(): Promise<PublicUser[]> {
     .select("Username, userId")
     .in("userId", friendIds);
 
-  const base = (userRows ?? []).map((row: any) => ({
+  const base = ((userRows ?? []) as UserRow[]).map((row) => ({
     userId: row.userId,
     Username: row.Username ?? "",
   })) as PublicUser[];

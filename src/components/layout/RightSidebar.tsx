@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import Button from "../ui/Button";
 import UserSearch from "../game/UserSearch";
 import PublicProfile from "../profile/PublicProfile";
@@ -95,7 +95,7 @@ export default function RightSidebar() {
 
   const loggedIn = getLocalItem("logged in") === "true";
 
-  const loadData = async () => {
+  const loadData = useCallback(async () => {
     if (!loggedIn) return;
     
     setLoading(true);
@@ -106,30 +106,30 @@ export default function RightSidebar() {
       ]);
       setFriends(friendsData);
       setRequests(requestData as IncomingRequest[]);
-    } catch (err) {
+    } catch {
       // TODO: handle right sidebar load error.
     } finally {
       setLoading(false);
     }
-  };
+  }, [loggedIn]);
 
   useEffect(() => {
     if (loggedIn) {
       loadData();
     }
-  }, [loggedIn]);
+  }, [loggedIn, loadData]);
 
   useEffect(() => {
     if (!searchOpen && loggedIn) {
       loadData();
     }
-  }, [searchOpen, loggedIn]);
+  }, [searchOpen, loggedIn, loadData]);
 
   const handleRespond = async (requestId: number, senderId: string, action: "accept" | "reject") => {
     try {
       await respondToFriendRequest(requestId, senderId, action);
       await loadData();
-    } catch (err) {
+    } catch {
       // TODO: handle respond error.
     }
   };
@@ -143,7 +143,7 @@ export default function RightSidebar() {
     try {
       await removeFriend(friendId);
       await loadData();
-    } catch (err) {
+    } catch {
       // TODO: handle remove friend error.
     }
   };
