@@ -12,14 +12,12 @@ export function isValidEmail(email: string): boolean {
 export function UpdateText(){
     const selection = get_text(FetchSettingsData(0).Text.Length);
     UpdateGameSettingsData(0, { CurrentText: selection.text, CurrentTitle: selection.title });
-
-    console.log(`Text: ${FetchGameSettingsData(0).CurrentText}`);
+    // TODO: consider telemetry for text updates.
 }
 
 export function UpdateTimer(time: number){
     UpdateGameSettingsData(0, { Timer: time});
-
-    console.log(`Timer: ${FetchGameSettingsData(0).Timer}`);
+    // TODO: consider telemetry for timer updates.
 }
 
 export function GenerateRandomId(): number{
@@ -129,7 +127,7 @@ export function CalculateErrorHotspots(ListOfGames: Round[] | undefined): Record
 
 export function CalculateStreak(ListOfGames: Round[] | undefined): number{
     if (ListOfGames === undefined) return 0;
-    return ListOfGames.length + 1;
+    return ListOfGames.length;
 }
 
 export function SortRoundsArrayByCreated(Rounds: Round[]): Array<Round>{

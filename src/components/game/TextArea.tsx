@@ -60,7 +60,7 @@ export default function TextArea() {
         try {
             await appendUserRound(round);
         } catch (err) {
-            console.log("appendUserRound failed:", err);
+            // TODO: handle appendUserRound failure.
         }
     }, [flatText.length]);
 

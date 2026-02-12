@@ -9,6 +9,7 @@ interface Props {
   type?: "text" | "number" | "email" | "password" | "file";
   disabled?: boolean;
   className?: string;
+  containerClassName?: string;
 }
 
 export default function Input({
@@ -21,6 +22,7 @@ export default function Input({
   type = "text",
   disabled = false,
   className,
+  containerClassName,
 }: Props) {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     onChange?.(e.target.value);
@@ -35,7 +37,7 @@ export default function Input({
   };
 
   return (
-    <label className="flex flex-col gap-1 w-full">
+    <label className={`flex flex-col gap-1 w-full ${containerClassName ?? ""}`}>
       {label && (
         <span className="text-text-secondary text-xs font-display font-semibold uppercase tracking-wide">
           {label}

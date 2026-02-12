@@ -26,11 +26,11 @@ export default function Toolbar(){
             setLocalItem("theme-index", "0");
         }
         
-        console.log(`Theme: ${getLocalItem("theme")}\nTheme-Index: ${getLocalItem("theme-index")}`)
+        // TODO: consider telemetry for theme selection.
     }, [])
 
     useEffect(() => {
-        console.log("Themes: ", themes);
+        // TODO: handle themes load state if needed.
     }, [themes])
 
     const handleThemeBtn = (theme: string, themeIndex: string) => {

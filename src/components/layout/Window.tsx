@@ -8,9 +8,10 @@ type props = {
   bgClass?: string
   borderClass?: string
   open?: boolean
+  overlayClassName?: string
 } & ComponentProps<"div">
 
-export default function Window({value, width="fit", height="fit", bgClass="bg-card-bg", borderClass = "border-2 border-card-border", className, open = true}: props){
+export default function Window({value, width="fit", height="fit", bgClass="bg-card-bg", borderClass = "border-2 border-card-border", className, open = true, overlayClassName}: props){
     const [isRendered, setIsRendered] = useState<boolean>(open);
     const [isClosing, setIsClosing] = useState<boolean>(false);
 
@@ -30,7 +31,7 @@ export default function Window({value, width="fit", height="fit", bgClass="bg-ca
 
     return(
         <div
-            className={`fixed inset-0 z-30 bg-black/20 backdrop-blur-sm flex items-center justify-center ${isClosing ? "animate-fade-out" : "animate-fade-in"}`}
+            className={`fixed inset-0 z-30 bg-black/20 backdrop-blur-sm flex items-center justify-center ${isClosing ? "animate-fade-out" : "animate-fade-in"} ${overlayClassName ?? ""}`}
             onAnimationEnd={() => {
                 if (isClosing) {
                     setIsClosing(false);

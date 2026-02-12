@@ -49,7 +49,7 @@ function notifySubscribers(subscribers: Set<DataChangeSubscriber>, kind: string)
         try {
             subscriber();
         } catch (err) {
-            console.error(`${kind} subscriber threw:`, err);
+            // TODO: handle subscriber error.
         }
     }
 }

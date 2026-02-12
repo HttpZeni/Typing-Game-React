@@ -92,10 +92,10 @@ export default function OptionsButton({text, onClickFunction, optionsValue, tool
                     <button
                         ref={buttonRef}
                         onClick={handeClick} 
-                        className={`w-9 h-9 bg-card-bg rounded-lg border-2 transition-all duration-200 font-display font-semibold active:scale-95 ${ 
+                        className={`w-9 h-9 bg-card-bg rounded-lg border-2 font-display font-semibold active:scale-95 transition-all duration-200 ${ 
                             pressed 
-                                ? 'border-accent-primary text-accent-primary shadow-glow-purple' 
-                                : 'border-card-border text-text-primary hover:border-accent-primary hover:text-accent-primary hover:shadow-glow-purple'
+                                ? 'border-accent-primary text-accent-primary shadow-glow-purple -rotate-90' 
+                                : 'border-card-border text-text-primary hover:border-accent-primary hover:text-accent-primary hover:shadow-glow-purple rotate-0'
                         } ${pressed ? 'bg-game-bg-light' : 'hover:bg-game-bg-light'}`}
                     >
                         {text}

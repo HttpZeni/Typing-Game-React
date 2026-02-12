@@ -49,7 +49,7 @@ const Profile = forwardRef<HTMLDivElement, {}>(function Profile(_, ref) {
                 if (alive) setProfilePicture(settings.profilePicture ?? null);
             })
             .catch((error) => {
-                console.log("Error loading user settings: ", error);
+                // TODO: handle user settings load error.
             });
         if (getLocalItem("open-profile-on-load") === "true") {
             setOpen(true);
@@ -67,7 +67,7 @@ const Profile = forwardRef<HTMLDivElement, {}>(function Profile(_, ref) {
                 if (url) setProfilePicture(url);
             })
             .catch((error) => {
-                console.log("Error updating profile picture: ", error);
+                // TODO: handle profile picture update error.
             });
     }, [file])
 
@@ -83,7 +83,7 @@ const Profile = forwardRef<HTMLDivElement, {}>(function Profile(_, ref) {
     const handleLogOutBtn = async () => {
         const result = await logOut();
         if (result?.status === "error") {
-            console.log("Logout failed: ", result.message ?? "Unknown error");
+            // TODO: handle logout error.
         }
     }
 
@@ -157,7 +157,7 @@ const Profile = forwardRef<HTMLDivElement, {}>(function Profile(_, ref) {
 
     const handleGraphDropDown = (graph: string) => {
         setCurrentGraph(graph);
-        console.log(currentGraph)
+        // TODO: remove or replace debug output for graph change.
     }
 
     const windowValue = (

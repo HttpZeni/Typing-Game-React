@@ -11,6 +11,12 @@ type AuthResult = {
     message?: string;
 };
 
+export type PublicUser = {
+    userId: string;
+    Username: string;
+    profilePicture?: string | null;
+};
+
 export type UserSettings = {
     id: string;
     created_at: string;
@@ -49,7 +55,7 @@ async function ensureUserProfile(user: User, fallbackUsername?: string) {
         .maybeSingle();
 
     if (existingError) {
-        console.log("Error checking user profile: ", existingError);
+        // TODO: handle user profile lookup error.
         return;
     }
 
@@ -65,7 +71,7 @@ async function ensureUserProfile(user: User, fallbackUsername?: string) {
             .single();
 
         if (error) {
-            console.log("Error creating user profile: ", error);
+            // TODO: handle user profile creation error.
             return;
         }
     }
@@ -77,7 +83,7 @@ async function ensureUserProfile(user: User, fallbackUsername?: string) {
         .maybeSingle();
 
     if (settingsError) {
-        console.log("Error loading user settings: ", settingsError);
+        // TODO: handle settings lookup error.
         return;
     }
 
@@ -87,7 +93,7 @@ async function ensureUserProfile(user: User, fallbackUsername?: string) {
             .insert({ id: user.id, profilePicture: DEFAULT_PROFILE_PIC });
 
         if (insertError) {
-            console.log("Error saving user settings: ", insertError);
+            // TODO: handle settings insert error.
         }
     }
 }
@@ -104,10 +110,10 @@ export async function addUserStatsData() {
     const {data, error} = await supabase.from("UserStats").insert([newData]).single();
 
     if (error){
-        console.log("Error saving user stats: ", error);
+        // TODO: handle user stats save error.
     }
     else{
-        console.log(data);
+        // TODO: handle user stats save success if needed.
     }
 }
 
@@ -115,17 +121,17 @@ export async function addUser(Username: string, Email: string, Password: string)
     const { data: signUpData, error: signUpError} = await supabase.auth.signUp({email: Email, password: Password, options: { data: { username: Username } }});
 
     if (signUpError) {
-        console.log("Sign up error: ", signUpError);
+        // TODO: handle sign up error.
         return { status: "error", message: normalizeAuthError(signUpError, "Sign up error") } satisfies AuthResult;
     }
 
     if (!signUpData.session) {
-        return { status: "verify", message: "Bitte Email bestätigen." } satisfies AuthResult;
+        return { status: "verify", message: "Bitte Email besttigen." } satisfies AuthResult;
     }
 
     const user = signUpData.user;
     if (!user) {
-        console.log("No user id from signup.");
+        // TODO: handle missing user id after signup.
         return { status: "error", message: "No user id from signup." } satisfies AuthResult;
     }
 
@@ -139,20 +145,20 @@ export async function login(Email: string, Password: string) {
     const { data: signInData, error: singInError} = await supabase.auth.signInWithPassword({email: Email, password: Password});
 
     if (singInError) {
-        console.log("Sign in error: ", singInError);
+        // TODO: handle sign in error.
         return { status: "error", message: normalizeAuthError(singInError, "Sign in error") } satisfies AuthResult;
     }
 
     const user = signInData.user;
     if (!user) {
-        console.log("No user from sign in.");
+        // TODO: handle missing user after sign in.
         return { status: "error", message: "No user from sign in." } satisfies AuthResult;
     }
 
     const confirmedAt = user.email_confirmed_at ?? user.confirmed_at;
     if (!confirmedAt) {
-        console.log("Bitte Email bestätigen.");
-        return { status: "verify", message: "Bitte Email bestätigen." } satisfies AuthResult;
+        // TODO: handle unconfirmed email.
+        return { status: "verify", message: "Bitte Email besttigen." } satisfies AuthResult;
     }
 
     await ensureUserProfile(user);
@@ -163,20 +169,107 @@ export async function login(Email: string, Password: string) {
 export async function logOut(){
     const { error } = await supabase.auth.signOut();
     if (error) {
-        console.log("Sign out error: ", error);
+        // TODO: handle sign out error.
         return { status: "error", message: normalizeAuthError(error, "Sign out error") } satisfies AuthResult;
     }
     setLocalItem("logged in", "false");
     return { status: "ok" } satisfies AuthResult;
 }
 
+export async function signInWithProvider(provider: "google" | "discord") {
+    const { error } = await supabase.auth.signInWithOAuth({
+        provider,
+        options: {
+            redirectTo: window.location.origin,
+        },
+    });
+
+    if (error) {
+        // TODO: handle OAuth sign in error.
+        return { status: "error", message: normalizeAuthError(error, "OAuth sign in error") } satisfies AuthResult;
+    }
+    return { status: "ok" } satisfies AuthResult;
+}
+
 export async function getUser(){
     const {data: {user}, error} = await supabase.auth.getUser();
     if (error) {
-        console.log("Error getting user: ", error);
+        // TODO: handle get user error.
         return null;
     }
     return user;
+}
+
+export async function getUserSettingsById(userId: string) {
+    const { data, error } = await supabase
+        .from("UserSettings")
+        .select("*")
+        .eq("id", userId)
+        .maybeSingle();
+
+    if (error) throw error;
+    return (data ?? { id: userId, profilePicture: null }) as UserSettings;
+}
+
+export async function getUserStatsByUserId(userId: string) {
+    const { data, error } = await supabase
+        .from("UserStats")
+        .select("*")
+        .eq("userId", userId)
+        .maybeSingle();
+
+    if (error) throw error;
+    return (data ?? {
+        userId,
+        created_at: new Date().toISOString(),
+        rounds: [],
+    }) as UserStats;
+}
+
+export async function getUsernameByUserId(userId: string): Promise<string> {
+    const { data, error } = await supabase
+        .from("Users")
+        .select("Username")
+        .eq("userId", userId)
+        .maybeSingle();
+
+    if (error) throw error;
+    return data?.Username ?? "";
+}
+
+export async function searchUsersByUsername(query: string): Promise<PublicUser[]> {
+    const trimmed = query.trim();
+    if (trimmed.length < 2) return [];
+
+    const { data, error } = await supabase
+        .from("Users")
+        .select("userId, Username")
+        .ilike("Username", `%${trimmed}%`)
+        .limit(20);
+
+    if (error) throw error;
+    return (data ?? []).map((row) => ({
+        userId: row.userId,
+        Username: row.Username ?? "",
+    })) as PublicUser[];
+}
+
+export async function attachProfilePictures(users: PublicUser[]) {
+    if (users.length === 0) return users;
+    const userIds = users.map((u) => u.userId);
+    const { data, error } = await supabase
+        .from("UserSettings")
+        .select("id, profilePicture")
+        .in("id", userIds);
+
+    if (error) throw error;
+    const map = new Map<string, string | null>();
+    (data ?? []).forEach((row) => map.set(row.id, row.profilePicture));
+
+    return users.map((u) => ({
+        ...u,
+        profilePicture: map.get(u.userId) ?? null,
+    }));
 }
 
 export async function changeUsername(NewUsername: string){
@@ -188,7 +281,9 @@ export async function changeUsername(NewUsername: string){
     .update({ Username: NewUsername })
     .eq("userId", user.id);
 
-  if (error) console.log("Error: ", error);
+  if (error) {
+    // TODO: handle username update error.
+  }
 }
 
 export async function getUsername(): Promise<string>{
@@ -201,7 +296,9 @@ export async function getUsername(): Promise<string>{
     .eq("userId", user.id)
     .single();
 
-  if (error) console.log("Error: ", error);
+  if (error) {
+    // TODO: handle username fetch error.
+  }
   return data?.Username ?? "";
 }
 
@@ -246,7 +343,7 @@ export async function changeProfilePicture(file: File) {
     .upload(filePath, file, { upsert: true });
 
   if (uploadError) {
-    console.log("Upload error:", uploadError);
+    // TODO: handle avatar upload error.
     return;
   }
 
@@ -257,7 +354,7 @@ export async function changeProfilePicture(file: File) {
     .upsert({ id: user.id, profilePicture: data.publicUrl }, { onConflict: "id" });
 
   if (error) {
-    console.log("Error updating UserSettings: ", error);
+    // TODO: handle settings update error.
     return;
   }
 
@@ -293,25 +390,204 @@ export async function updateUserStats(patch: Partial<UserStats>) {
     .single();
 
   if (error) {
-    console.log("updateUserStats error:", error);
+    // TODO: handle updateUserStats error.
     throw error;
   }
   if (!data) {
-    console.log("updateUserStats returned no data", { patch, userId: user.id });
+    // TODO: handle updateUserStats empty response.
   }
   return data as UserStats;
 }
 
 export async function appendUserRound(newRound: Round): Promise<UserStats> {
-  console.log("appendUserRound called", newRound);
+  // TODO: consider telemetry for appended round.
   const stats = await getUserStats()
   const updatedRounds: Round[] = [...stats.rounds, newRound]
 
   return updateUserStats({ rounds: updatedRounds })
 }
 
+export async function getFriendStatusForUsers(userIds: string[]) {
+  if (userIds.length == 0) {
+    return { friends: [], outgoing: {}, incoming: {} } as {
+      friends: string[];
+      outgoing: Record<string, number>;
+      incoming: Record<string, number>;
+    };
+  }
 
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { friends: [], outgoing: {}, incoming: {} };
 
+  const [friendsRes, outgoingRes, incomingRes] = await Promise.all([
+    supabase
+      .from("friends")
+      .select("friend_id")
+      .eq("user_id", user.id)
+      .in("friend_id", userIds),
+    supabase
+      .from("friendrequests")
+      .select("id, receiver_id")
+      .eq("sender_id", user.id)
+      .eq("status", "pending")
+      .in("receiver_id", userIds),
+    supabase
+      .from("friendrequests")
+      .select("id, sender_id")
+      .eq("receiver_id", user.id)
+      .eq("status", "pending")
+      .in("sender_id", userIds),
+  ]);
 
+  return {
+    friends: (friendsRes.data ?? []).map((f: any) => f.friend_id),
+    outgoing: (outgoingRes.data ?? []).reduce((acc: Record<string, number>, item: any) => {
+      acc[item.receiver_id] = item.id;
+      return acc;
+    }, {}),
+    incoming: (incomingRes.data ?? []).reduce((acc: Record<string, number>, item: any) => {
+      acc[item.sender_id] = item.id;
+      return acc;
+    }, {}),
+  };
+}
 
+export async function sendFriendRequest(receiverId: string) {
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) throw new Error("No user");
 
+  const { data: existingFriend } = await supabase
+    .from("friends")
+    .select("friend_id")
+    .eq("user_id", user.id)
+    .eq("friend_id", receiverId)
+    .maybeSingle();
+
+  if (existingFriend) throw new Error("Already friends");
+
+  const { data: existingRequest } = await supabase
+    .from("friendrequests")
+    .select("id")
+    .or(`and(sender_id.eq.${user.id},receiver_id.eq.${receiverId}),and(sender_id.eq.${receiverId},receiver_id.eq.${user.id})`)
+    .eq("status", "pending")
+    .maybeSingle();
+
+  if (existingRequest) throw new Error("Request already pending");
+
+  const { data, error } = await supabase
+    .from("friendrequests")
+    .insert({ sender_id: user.id, receiver_id: receiverId, status: "pending" })
+    .select("id")
+    .single();
+
+  if (error) throw error;
+  return data?.id as number;
+}
+
+export async function respondToFriendRequest(requestId: number, senderId: string, action: "accept" | "reject") {
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) throw new Error("No user");
+
+  const newStatus = action == "accept" ? "accepted" : "rejected";
+  const { error: updateError } = await supabase
+    .from("friendrequests")
+    .update({ status: newStatus })
+    .eq("id", requestId);
+
+  if (updateError) throw updateError;
+  if (action != "accept") return;
+
+  const { error: friendError } = await supabase
+    .from("friends")
+    .insert([
+      { user_id: user.id, friend_id: senderId },
+      { user_id: senderId, friend_id: user.id },
+    ]);
+
+  if (friendError) throw friendError;
+}
+
+export async function getIncomingFriendRequests() {
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return [];
+
+  const { data, error } = await supabase
+    .from("friendrequests")
+    .select("id, sender_id")
+    .eq("receiver_id", user.id)
+    .eq("status", "pending");
+
+  if (error) throw error;
+  const senderIds = (data ?? []).map((r: any) => r.sender_id);
+  if (senderIds.length == 0) return [];
+
+  const { data: userRows } = await supabase
+    .from("Users")
+    .select("Username, userId")
+    .in("userId", senderIds);
+
+  const { data: settingsRows } = await supabase
+    .from("UserSettings")
+    .select("id, profilePicture")
+    .in("id", senderIds);
+
+  const settingsMap = new Map<string, string | null>();
+  (settingsRows ?? []).forEach((row: any) => settingsMap.set(row.id, row.profilePicture));
+
+  return (data ?? []).map((row: any) => {
+    const userRow = (userRows ?? []).find((u: any) => u.userId === row.sender_id);
+    return {
+      id: row.id,
+      sender_id: row.sender_id,
+      Username: userRow?.Username ?? "Unknown",
+      profilePicture: settingsMap.get(row.sender_id) ?? null,
+    };
+  });
+}
+
+export async function removeFriend(friendId: string) {
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) throw new Error("No user");
+
+  const { error: errorA } = await supabase
+    .from("friends")
+    .delete()
+    .eq("user_id", user.id)
+    .eq("friend_id", friendId);
+
+  if (errorA) throw errorA;
+
+  const { error: errorB } = await supabase
+    .from("friends")
+    .delete()
+    .eq("user_id", friendId)
+    .eq("friend_id", user.id);
+
+  if (errorB) throw errorB;
+}
+
+export async function getFriendsList(): Promise<PublicUser[]> {
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return [];
+
+  const { data: friendRows, error } = await supabase
+    .from("friends")
+    .select("friend_id")
+    .eq("user_id", user.id);
+
+  if (error) throw error;
+  const friendIds = (friendRows ?? []).map((f: any) => f.friend_id);
+  if (friendIds.length == 0) return [];
+
+  const { data: userRows } = await supabase
+    .from("Users")
+    .select("Username, userId")
+    .in("userId", friendIds);
+
+  const base = (userRows ?? []).map((row: any) => ({
+    userId: row.userId,
+    Username: row.Username ?? "",
+  })) as PublicUser[];
+
+  return await attachProfilePictures(base);
+}
