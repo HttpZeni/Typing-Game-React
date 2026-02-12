@@ -1,6 +1,15 @@
 import supabase from "./supabase/supabase-client";
+import type { User } from "@supabase/supabase-js";
 import { FetchGameData } from "./fetchData";
 import { setLocalItem } from "../storage/localStorage";
+
+const DEFAULT_PROFILE_PIC =
+    "https://i.pinimg.com/736x/8c/8f/aa/8c8faaee152db00384e06d3365cae0b9.jpg";
+
+type AuthResult = {
+    status: "ok" | "error" | "verify";
+    message?: string;
+};
 
 export type UserSettings = {
     id: string;
@@ -24,6 +33,64 @@ export type UserStats = {
 
 export type Round = UserStats["rounds"][number]
 
+function normalizeAuthError(error: unknown, fallback: string) {
+    if (!error || typeof error !== "object") return fallback;
+    if ("message" in error && typeof (error as { message?: string }).message === "string") {
+        return (error as { message: string }).message;
+    }
+    return fallback;
+}
+
+async function ensureUserProfile(user: User, fallbackUsername?: string) {
+    const { data: existing, error: existingError } = await supabase
+        .from("Users")
+        .select("userId")
+        .eq("userId", user.id)
+        .maybeSingle();
+
+    if (existingError) {
+        console.log("Error checking user profile: ", existingError);
+        return;
+    }
+
+    if (!existing) {
+        const username =
+            (user.user_metadata?.username as string | undefined) ||
+            fallbackUsername ||
+            (user.email ? user.email.split("@")[0] : "Player");
+
+        const { error } = await supabase
+            .from("Users")
+            .insert([{ Username: username, Email: user.email ?? "", userId: user.id }])
+            .single();
+
+        if (error) {
+            console.log("Error creating user profile: ", error);
+            return;
+        }
+    }
+
+    const { data: settings, error: settingsError } = await supabase
+        .from("UserSettings")
+        .select("id")
+        .eq("id", user.id)
+        .maybeSingle();
+
+    if (settingsError) {
+        console.log("Error loading user settings: ", settingsError);
+        return;
+    }
+
+    if (!settings) {
+        const { error: insertError } = await supabase
+            .from("UserSettings")
+            .insert({ id: user.id, profilePicture: DEFAULT_PROFILE_PIC });
+
+        if (insertError) {
+            console.log("Error saving user settings: ", insertError);
+        }
+    }
+}
 
 export async function addUserStatsData() {
     const newData = {
@@ -49,87 +116,66 @@ export async function addUser(Username: string, Email: string, Password: string)
 
     if (signUpError) {
         console.log("Sign up error: ", signUpError);
-        return { status: "error", message: "Sign up error" };
+        return { status: "error", message: normalizeAuthError(signUpError, "Sign up error") } satisfies AuthResult;
     }
 
     if (!signUpData.session) {
-        return { status: "verify", message: "Bitte Email best√§tigen." };
+        return { status: "verify", message: "Bitte Email best‰tigen." } satisfies AuthResult;
     }
 
-    const userId = signUpData.user?.id;
-    if (!userId) {
+    const user = signUpData.user;
+    if (!user) {
         console.log("No user id from signup.");
-        return { status: "error", message: "No user id from signup." };
+        return { status: "error", message: "No user id from signup." } satisfies AuthResult;
     }
 
-    const { data, error } = await supabase.from("Users").insert([{Username, Email, userId }]).single();
+    await ensureUserProfile(user, Username);
+    setLocalItem("logged in", "true");
 
-    if (error) {
-        console.log("Error saving user: ", error);
-        return { status: "error", message: "Error saving user" };
-    }
-    else {
-        setLocalItem("logged in", "true");
-        console.log(data);
-    }
-
-    const defaultPic = "https://i.pinimg.com/736x/8c/8f/aa/8c8faaee152db00384e06d3365cae0b9.jpg";
-
-    const { error: settingsError } = await supabase.from("UserSettings").upsert({ id: userId, profilePicture: defaultPic }, { onConflict: "id" });
-
-    if (settingsError) {
-        console.log("Error saving user settings: ", settingsError);
-    }
-
-    return { status: "ok" };
+    return { status: "ok" } satisfies AuthResult;
 }
 
 export async function login(Email: string, Password: string) {
     const { data: signInData, error: singInError} = await supabase.auth.signInWithPassword({email: Email, password: Password});
 
     if (singInError) {
-        console.log("Sign up error: ", singInError);
-        return;
+        console.log("Sign in error: ", singInError);
+        return { status: "error", message: normalizeAuthError(singInError, "Sign in error") } satisfies AuthResult;
     }
 
-    const { data: userData, error: userError } = await supabase.auth.getUser();
-    if (userError) {
-        console.log("Error getting user: ", userError);
-        return;
-    }
-    if (!userData.user?.email_confirmed_at) {
-        console.log("Bitte Email best√§tigen.");
-        return;
+    const user = signInData.user;
+    if (!user) {
+        console.log("No user from sign in.");
+        return { status: "error", message: "No user from sign in." } satisfies AuthResult;
     }
 
-    const userId = signInData.user?.id;
-    if (!userId) {
-        console.log("No user id from signup.");
-        return;
+    const confirmedAt = user.email_confirmed_at ?? user.confirmed_at;
+    if (!confirmedAt) {
+        console.log("Bitte Email best‰tigen.");
+        return { status: "verify", message: "Bitte Email best‰tigen." } satisfies AuthResult;
     }
 
-  const { data: profile, error: profileError } = await supabase.from("Users").select("*").eq("userId", userId).single();
-
-  if (profileError) {
-    console.log("Error loading profile: ", profileError);
-  } else {
-    console.log(profile);
-  }
-
-  setLocalItem("logged in", "true");
+    await ensureUserProfile(user);
+    setLocalItem("logged in", "true");
+    return { status: "ok" } satisfies AuthResult;
 }
 
 export async function logOut(){
     const { error } = await supabase.auth.signOut();
     if (error) {
         console.log("Sign out error: ", error);
-        return
+        return { status: "error", message: normalizeAuthError(error, "Sign out error") } satisfies AuthResult;
     }
     setLocalItem("logged in", "false");
+    return { status: "ok" } satisfies AuthResult;
 }
 
 export async function getUser(){
-    const {data: {user}} = await supabase.auth.getUser();
+    const {data: {user}, error} = await supabase.auth.getUser();
+    if (error) {
+        console.log("Error getting user: ", error);
+        return null;
+    }
     return user;
 }
 
@@ -263,3 +309,9 @@ export async function appendUserRound(newRound: Round): Promise<UserStats> {
 
   return updateUserStats({ rounds: updatedRounds })
 }
+
+
+
+
+
+

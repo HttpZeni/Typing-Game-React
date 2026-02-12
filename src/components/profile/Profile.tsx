@@ -81,8 +81,10 @@ const Profile = forwardRef<HTMLDivElement, {}>(function Profile(_, ref) {
     }
 
     const handleLogOutBtn = async () => {
-        await logOut();
-        window.location.reload();
+        const result = await logOut();
+        if (result?.status === "error") {
+            console.log("Logout failed: ", result.message ?? "Unknown error");
+        }
     }
 
     const handleInput = (value: string) => {

@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Results, TextArea, Toolbar, Title, Profile, Button, Window, Input } from "./components";
 import LoadingScreen from "./components/ui/LoadingScreen";
 import { addUser, login } from "./services/supabaseData";
+import supabase from "./services/supabase/supabase-client";
 import { getLocalItem, setLocalItem } from "./storage/localStorage";
 import { isValidEmail } from "./utils/tools";
 import { useGameStore } from "./state";
@@ -13,6 +14,8 @@ function App() {
   const [loginWindowOpen, setLoginWindowOpen] = useState<boolean>(false);
   const [authMode, setAuthMode] = useState<"login" | "signup">("login");
   const [authMessage, setAuthMessage] = useState<string>("");
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
+  const [authLoading, setAuthLoading] = useState<boolean>(true);
 
   const [signUpUsername, setSignUpUsername] = useState<string>("");
   const [signUpEmail, setSignUpEmail] = useState<string>("");
@@ -28,7 +31,7 @@ function App() {
   useEffect(() => {
     UpdateText();
     bumpTextVersion();
-    if (getLocalItem("logged in") === null){
+    if (!getLocalItem("logged in")){
       setLocalItem("logged in", "false");
     }
     const theme = getLocalItem("theme") || "theme-earthy-earth";
@@ -40,6 +43,33 @@ function App() {
     };
     applyThemeClass(document.documentElement);
   }, [bumpTextVersion]);
+
+  useEffect(() => {
+    let alive = true;
+
+    supabase.auth.getSession().then(({ data, error }) => {
+      if (!alive) return;
+      if (error) {
+        console.log("Auth session error: ", error);
+      }
+      const isAuthed = !!data.session;
+      setIsAuthenticated(isAuthed);
+      setLocalItem("logged in", isAuthed ? "true" : "false");
+      setAuthLoading(false);
+    });
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (!alive) return;
+      const isAuthed = !!session;
+      setIsAuthenticated(isAuthed);
+      setLocalItem("logged in", isAuthed ? "true" : "false");
+    });
+
+    return () => {
+      alive = false;
+      subscription.unsubscribe();
+    };
+  }, []);
 
   const handleClick = () => {
     setShowResults(!showResults)
@@ -57,23 +87,29 @@ function App() {
 
   const handleSignupBtn = async () => {
     setAuthMode("signup")
-    console.log(getLocalItem("logged in"))
-    if (getLocalItem("logged in") === "true") return;
+    if (isAuthenticated) return;
     const result = await addUser(signUpUsername, signUpEmail, signUpPassword);
     if (result?.status === "verify") {
-      setAuthMessage("Please confirm your email.");
+      setAuthMessage(result.message ?? "Bitte Email bestätigen.");
     } else if (result?.status === "error") {
-      setAuthMessage("Error, please try again.");
+      setAuthMessage(result.message ?? "Error, please try again.");
     } else {
       setAuthMessage("");
+      setLoginWindowOpen(false);
     }
   }
 
   const handleLoginBtn = async () => {
-    await login(signUpEmail, signUpPassword);
+    const result = await login(signUpEmail, signUpPassword);
     setAuthMode("login");
-    setAuthMessage("");
-    window.location.reload();
+    if (result?.status === "verify") {
+      setAuthMessage(result.message ?? "Bitte Email bestätigen.");
+    } else if (result?.status === "error") {
+      setAuthMessage(result.message ?? "Error, please try again.");
+    } else {
+      setAuthMessage("");
+      setLoginWindowOpen(false);
+    }
   }
 
   const loginWidnow = (
@@ -199,7 +235,16 @@ function App() {
             :
             <>
               <div className=" w-1/5 h-full flex-0">
-                {getLocalItem("logged in") === "false" ? <div className="relative z-50 p-5"><Button onClickFunction={handleLoginOrSignUpBtn} text="Login / Sign up"/></div> : <Profile/>}
+                {!isAuthenticated ? (
+                  <div className="relative z-50 p-5">
+                    <Button
+                      onClickFunction={handleLoginOrSignUpBtn}
+                      text={authLoading ? "Checking session..." : "Login / Sign up"}
+                    />
+                  </div>
+                ) : (
+                  <Profile/>
+                )}
               </div>
               {loginWindowOpen ? (
                 <Window
