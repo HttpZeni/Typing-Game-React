@@ -50,12 +50,12 @@ npm run preview
 This will start a server that serves your production build.
 
 ## Environment Setup
-If you want login/profile + stats syncing, configure Supabase in `.env`:
+Configure Supabase in `.env` before starting the app:
 ```
 VITE_SUPABASE_URL=
 VITE_SUPABASE_ANON_KEY=
 ```
-Without these variables, the game still runs, but profile/stat sync features are unavailable.
+Currently, these variables are required at runtime because the Supabase client is initialized on app startup.
 
 ## How to Play
 - Click the typing area to focus (it auto-focuses when the page loads).
